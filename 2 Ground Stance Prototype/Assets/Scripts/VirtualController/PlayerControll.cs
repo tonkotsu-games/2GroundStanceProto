@@ -22,6 +22,8 @@ public class PlayerControll : MonoBehaviour
 
     private Vector3 moveVector;
 
+    private bool cameraButton = false;
+
     private void Start()
     {        
         rigi = GetComponent<Rigidbody>();
@@ -35,17 +37,25 @@ public class PlayerControll : MonoBehaviour
             MovementCalculation();
         }
 
-
+        //This is for changing the Stances
         if (inputPackage.CameraButton)
         {
-            if (currentState == StanceState.AgilityStance)
+            if (!cameraButton)
             {
-                nextSate = StanceState.AggroStance;
+                cameraButton = true;
+                if (currentState == StanceState.AgilityStance)
+                {
+                    nextSate = StanceState.AggroStance;
+                }
+                else
+                {
+                    nextSate = StanceState.AgilityStance;
+                }
             }
-            else
-            {
-                nextSate = StanceState.AgilityStance;
-            }
+        }
+        else if(cameraButton)
+        {
+            cameraButton = false;
         }
     }
 
@@ -94,7 +104,10 @@ public class PlayerControll : MonoBehaviour
                                         0f);
         }
     }
-
+    /// <summary>
+    /// Here the state would be changed and the player get all the informations from a seperated class
+    /// </summary>
+    /// <param name="changeState"></param>
     private void ChangeState(StanceState changeState)
     {
         if(changeState == StanceState.AgilityStance)
