@@ -606,7 +606,7 @@ MonoBehaviour:
         Culture=neutral, PublicKeyToken=null
   m_LegacyBlendHint: 0
   m_YAxis:
-    Value: 0.5
+    Value: 0.45
     m_MaxSpeed: 2
     m_AccelTime: 0.2
     m_DecelTime: 0.1
@@ -658,12 +658,12 @@ MonoBehaviour:
   m_BindingMode: 5
   m_SplineCurvature: 0.2
   m_Orbits:
-  - m_Height: 5.77
-    m_Radius: 4.62
-  - m_Height: 2.42
-    m_Radius: 4.39
+  - m_Height: 9.41
+    m_Radius: 6.84
+  - m_Height: 5.23
+    m_Radius: 6.57
   - m_Height: 0.62
-    m_Radius: 2.13
+    m_Radius: 3.18
   m_LegacyHeadingBias: 3.4028235e+38
   m_Rigs:
   - {fileID: 775527299}
@@ -677,7 +677,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 562102487}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.5946351, y: 2.42, z: -3.878254}
+  m_LocalPosition: {x: 0.5946351, y: 4.6594753, z: -5.793122}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 775527300}
@@ -904,7 +904,7 @@ MonoBehaviour:
   m_LookaheadIgnoreY: 0
   m_HorizontalDamping: 0
   m_VerticalDamping: 0
-  m_ScreenX: 0.4
+  m_ScreenX: 0.5
   m_ScreenY: 0.5
   m_DeadZoneWidth: 0
   m_DeadZoneHeight: 0
@@ -926,7 +926,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 5
-  m_FollowOffset: {x: 0, y: 2.42, z: -4.39}
+  m_FollowOffset: {x: 0, y: 4.6594753, z: -6.3048677}
   m_XDamping: 1
   m_YDamping: 1
   m_ZDamping: 1
@@ -1029,8 +1029,8 @@ MonoBehaviour:
   m_LookaheadIgnoreY: 0
   m_HorizontalDamping: 0
   m_VerticalDamping: 0
-  m_ScreenX: 0.4
-  m_ScreenY: 0.6
+  m_ScreenX: 0.5
+  m_ScreenY: 0.5
   m_DeadZoneWidth: 0
   m_DeadZoneHeight: 0
   m_SoftZoneWidth: 0.8
@@ -1051,7 +1051,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 5
-  m_FollowOffset: {x: 0, y: 2.42, z: -4.39}
+  m_FollowOffset: {x: 0, y: 4.6594753, z: -6.3048677}
   m_XDamping: 1
   m_YDamping: 1
   m_ZDamping: 1
@@ -1253,8 +1253,8 @@ MonoBehaviour:
   m_LookaheadIgnoreY: 0
   m_HorizontalDamping: 0
   m_VerticalDamping: 0
-  m_ScreenX: 0.4
-  m_ScreenY: 0.55
+  m_ScreenX: 0.5
+  m_ScreenY: 0.5
   m_DeadZoneWidth: 0
   m_DeadZoneHeight: 0
   m_SoftZoneWidth: 0.8
@@ -1275,7 +1275,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 5
-  m_FollowOffset: {x: 0, y: 2.42, z: -4.39}
+  m_FollowOffset: {x: 0, y: 4.6594753, z: -6.3048677}
   m_XDamping: 1
   m_YDamping: 1
   m_ZDamping: 1
