@@ -11,7 +11,7 @@ public class PlayerControll : MonoBehaviour
     }
 
     private StanceState currentState;
-    private StanceState nextSate;
+    private StanceState nextState;
 
     private InputPackage inputPackage;
     private Rigidbody rigi;
@@ -19,11 +19,15 @@ public class PlayerControll : MonoBehaviour
     public InputPackage InputPackage { get => inputPackage; set => inputPackage = value; }
 
     [SerializeField] private float movementSpeed = 0;
+    [SerializeField] private float jumpheight = 10;
+    [SerializeField] private float rotationSpeed = 0.1f;
     Animator playerAnim;
 
     private Vector3 moveVector;
 
     private bool cameraButton = false;
+
+    [SerializeField] GameObject mainCam;
 
     private void Start()
     {
@@ -34,6 +38,11 @@ public class PlayerControll : MonoBehaviour
 
     private void Update()
     {
+
+        playerAnim.ResetTrigger("jumping");
+        playerAnim.ResetTrigger("attacking");
+        playerAnim.ResetTrigger("evasion");
+
         if (inputPackage != null)
         {
             MovementCalculation();
@@ -43,26 +52,39 @@ public class PlayerControll : MonoBehaviour
             
         }
 
+        if (inputPackage.InputA)
+        {
+            Jump();
+
+        }
+        if (inputPackage.TriggerRight != 0) {
+            Attack();
+        }
+        if (inputPackage.InputB)
+        {
+            Evade();
+        }
         //This is for changing the Stances
         if (inputPackage.CameraButton)
         {
             if (!cameraButton)
             {
-                cameraButton = true;
                 if (currentState == StanceState.AgilityStance)
                 {
-                    nextSate = StanceState.AggroStance;
+                    nextState = StanceState.AggroStance;
                 }
                 else
                 {
-                    nextSate = StanceState.AgilityStance;
+                    nextState = StanceState.AgilityStance;
                 }
+                cameraButton = true;
             }
         }
         else if(cameraButton)
         {
             cameraButton = false;
         }
+
     }
 
     private void FixedUpdate()
@@ -70,16 +92,12 @@ public class PlayerControll : MonoBehaviour
         if (inputPackage != null)
         {
             Move();
-            if (inputPackage.InputA)
-            {
-                playerAnim.SetTrigger("jump");
-
-            }
+            
         }
 
-        if(currentState != nextSate)
+        if(currentState != nextState)
         {
-            ChangeState(nextSate);
+            ChangeState(nextState);
         }
     }
 
@@ -116,7 +134,7 @@ public class PlayerControll : MonoBehaviour
         else
         {
             rigi.velocity = new Vector3(0f,
-                                        0f,
+                                        rigi.velocity.y,
                                         0f);
         }
     }
@@ -128,12 +146,52 @@ public class PlayerControll : MonoBehaviour
     {
         if(changeState == StanceState.AgilityStance)
         {
+            playerAnim.SetInteger("Stance", 0);
             movementSpeed = AgilityStance.movementSpeed;
         }
         else
         {
+            playerAnim.SetInteger("Stance", 1);
             movementSpeed = AggroStance.movementSpeed;
         }
         currentState = changeState;
     }
+
+    private void Jump()
+    {
+        switch (currentState)
+        {
+            case StanceState.AgilityStance:
+                playerAnim.SetTrigger("jumping");
+                rigi.AddForce(new Vector3(0, jumpheight, 0));
+                break;
+            case StanceState.AggroStance:
+                break;
+        }
+    }
+    private void Attack()
+    {
+        switch (currentState)
+        {
+            case StanceState.AgilityStance:
+                break;
+            case StanceState.AggroStance:
+                break;
+        }
+
+        playerAnim.SetTrigger("attacking");
+    }
+
+    void Evade()
+    {
+        switch (currentState)
+        {
+            case StanceState.AgilityStance:
+                break;
+            case StanceState.AggroStance:
+                break;
+        }
+        playerAnim.SetTrigger("evasion");
+    }
+
 }
