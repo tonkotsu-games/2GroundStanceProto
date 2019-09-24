@@ -20,9 +20,20 @@ public class PlayerControll : MonoBehaviour
 
     [SerializeField] private float movementSpeed = 0;
     [SerializeField] private float jumpheight = 10;
+    [SerializeField] private float rotationSpeed = 0.1f;
+    float evasionDistance;
+    [SerializeField] float evasionSpeed = 0.1f;
+    Vector3 positionAfterEvade;
     Animator playerAnim;
 
+    Vector3 evasionHeading;
+    bool evasion = false;
+
     private Vector3 moveVector;
+
+    private bool cameraButton = false;
+
+    [SerializeField] GameObject mainCam;
 
     private void Start()
     {
@@ -33,8 +44,13 @@ public class PlayerControll : MonoBehaviour
 
     private void Update()
     {
+
         playerAnim.ResetTrigger("jumping");
         playerAnim.ResetTrigger("attacking");
+        playerAnim.ResetTrigger("evasion");
+        playerAnim.ResetTrigger("heavyDodgeLeft");
+        playerAnim.ResetTrigger("heavyDodgeRight");
+
         if (inputPackage != null)
         {
             MovementCalculation();
@@ -44,38 +60,76 @@ public class PlayerControll : MonoBehaviour
             
         }
 
-        if (inputPackage.InputA)
+        if (!evasion)
         {
-            Jump();
-
-        }
-        if (inputPackage.InputB) {
-            Attack();
-        }
-        if (inputPackage.CameraButton)
-        {
-            if (currentState == StanceState.AgilityStance)
+            if (inputPackage.InputA)
             {
-                nextState = StanceState.AggroStance;
+                Jump();
+
+            }
+            if (inputPackage.TriggerRight != 0)
+            {
+                Attack();
+            }
+            if (inputPackage.InputB)
+            {
+                Evade();
+            }
+
+            //This is for changing the Stances
+            if (inputPackage.CameraButton)
+            {
+                if (!cameraButton)
+                {
+                    if (currentState == StanceState.AgilityStance)
+                    {
+                        nextState = StanceState.AggroStance;
+                    }
+                    else
+                    {
+                        nextState = StanceState.AgilityStance;
+                    }
+                    cameraButton = true;
+                }
+            }
+            else if (cameraButton)
+            {
+                cameraButton = false;
+            }
+        }
+
+
+        else if (evasion)
+        {
+
+            if (Vector3.Distance(transform.position, positionAfterEvade) > 0.3f)
+            {
+                transform.position = Vector3.Lerp(transform.position, positionAfterEvade, evasionSpeed);
             }
             else
             {
-                nextState = StanceState.AgilityStance;
+                Debug.Log("evasion Done");
+                evasion = false;
             }
         }
+
+
     }
 
     private void FixedUpdate()
     {
-        if (inputPackage != null)
+        if (!evasion)
         {
-            Move();
-            
-        }
+            if (inputPackage != null)
+            {
+                Move();
 
-        if(currentState != nextState)
-        {
-            ChangeState(nextState);
+            }
+
+            if (currentState != nextState)
+            {
+                ChangeState(nextState);
+            }
         }
     }
 
@@ -90,7 +144,7 @@ public class PlayerControll : MonoBehaviour
                                  0f, 
                                  inputPackage.MoveVertical);
 
-        moveVector = moveVector.normalized * move * movementSpeed;
+        moveVector =moveVector.normalized * move * movementSpeed;
     }
 
     private void Move()
@@ -100,8 +154,13 @@ public class PlayerControll : MonoBehaviour
             inputPackage.MoveVertical >= 0.1f ||
             inputPackage.MoveVertical <= -0.1f)
         {
+            Vector3 direction = Camera.main.transform.forward;
+            direction.y = 0f;
+            direction.Normalize();
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), 10);
+            moveVector = Camera.main.transform.TransformDirection(moveVector);
             rigi.velocity = new Vector3(moveVector.x,
-                                    rigi.velocity.y,
+                                    0f,
                                     moveVector.z);
         }
         else
@@ -111,18 +170,23 @@ public class PlayerControll : MonoBehaviour
                                         0f);
         }
     }
-
+    /// <summary>
+    /// Here the state would be changed and the player get all the informations from a seperated class
+    /// </summary>
+    /// <param name="changeState"></param>
     private void ChangeState(StanceState changeState)
     {
         if(changeState == StanceState.AgilityStance)
         {
             playerAnim.SetInteger("Stance", 0);
             movementSpeed = AgilityStance.movementSpeed;
+            evasionDistance = AgilityStance.evasionDistance;
         }
         else
         {
             playerAnim.SetInteger("Stance", 1);
             movementSpeed = AggroStance.movementSpeed;
+            evasionDistance = AggroStance.evasionDistance;
         }
         currentState = changeState;
     }
@@ -150,6 +214,28 @@ public class PlayerControll : MonoBehaviour
         }
 
         playerAnim.SetTrigger("attacking");
+    }
+
+    void Evade()
+    {
+        evasionHeading = new Vector3(inputPackage.MoveHorizontal, 0, inputPackage.MoveVertical).normalized;
+        positionAfterEvade = transform.position + evasionHeading * evasionDistance;
+        if (currentState == StanceState.AggroStance)
+        {
+           if(evasionHeading.x < 0)
+            {
+                playerAnim.SetTrigger("heavyDodgeLeft");
+            }
+            else
+            {
+                playerAnim.SetTrigger("heavyDodgeRight");
+            }
+        }
+        else
+        {
+            playerAnim.SetTrigger("evasion");
+        }
+        evasion = true;
     }
 
 }
