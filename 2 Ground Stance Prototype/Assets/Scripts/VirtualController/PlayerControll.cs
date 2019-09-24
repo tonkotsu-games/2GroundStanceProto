@@ -69,17 +69,22 @@ public class PlayerControll : MonoBehaviour
         {
             if (!cameraButton)
             {
-                nextState = StanceState.AggroStance;
-            }
-            else
-            {
-                nextState = StanceState.AgilityStance;
+                if (currentState == StanceState.AgilityStance)
+                {
+                    nextState = StanceState.AggroStance;
+                }
+                else
+                {
+                    nextState = StanceState.AgilityStance;
+                }
+                cameraButton = true;
             }
         }
         else if(cameraButton)
         {
             cameraButton = false;
         }
+
     }
 
     private void FixedUpdate()
