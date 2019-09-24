@@ -6,7 +6,8 @@ public class VirtuellController : MonoBehaviour
     IProvider inputProvider;
     InputPackage inputPackage;
 
-    private PlayerControll player; 
+    private PlayerControll player;
+    [SerializeField] private CameraFollow cam;
 
     [SerializeField] List<Texture2D> controller;
     
@@ -25,6 +26,7 @@ public class VirtuellController : MonoBehaviour
             debugOn = !debugOn;
         }
         player.InputPackage = inputProvider.GetPackage();
+        cam.InputPackage = inputProvider.GetPackage();
     }
 
     private void OnGUI()
