@@ -8,15 +8,33 @@ public class CameraFollow : MonoBehaviour
     
     public InputPackage InputPackage { get => inputPackage; set => inputPackage = value; }
 
-    [SerializeField] private GameObject target;
+    [SerializeField] private GameObject playerTarget;
+    [SerializeField] private GameObject enemyTarget;
+    private GameObject lookAt;
 
-    [SerializeField] private float offSetY, offSetZ;
+    [Range(0,20)]
+    [SerializeField] private float offSetY;
+    [Range(-20,0)]
+    [SerializeField] private float offSetZ;
+    [Range(0,20)]
+    [SerializeField] private float highSet;
 
     Quaternion rotationX;
     Quaternion rotationY;
 
     Vector3 offSet;
     Vector3 direction;
+    Vector3 offSetNew;
+    Vector3 offSetOld;
+
+
+    private void Start()
+    {
+        offSet = new Vector3(0, offSetY, offSetZ);
+        offSetNew = offSet;
+        offSetOld = offSet;
+        lookAt = playerTarget;
+    }
 
     void Update()
     {
@@ -28,23 +46,38 @@ public class CameraFollow : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        offSet = new Vector3(0, offSetY, offSetZ);
+        offSetNew = new Vector3(0, offSetY, offSetZ);
 
+        if (offSetOld != offSetNew)
+        {
+            offSet = offSetNew;
+            offSetOld = offSetNew;
+        }
     }
     public void CameraMove()
     {
-        rotationX = Quaternion.AngleAxis(inputPackage.CameraHorizontal, Vector3.up);
-        rotationY = Quaternion.AngleAxis(inputPackage.CameraVertical, Vector3.right);
-        offSet = rotationY * rotationX * offSet;
-        transform.position = target.transform.position + offSet;
-        if(transform.localEulerAngles.x >= 70)
+        if (lookAt == playerTarget)
         {
-            transform.Rotate(70, transform.eulerAngles.y, transform.eulerAngles.z);
+            rotationX = Quaternion.AngleAxis(inputPackage.CameraHorizontal, Vector3.up);
+            rotationY = Quaternion.AngleAxis(inputPackage.CameraVertical, Vector3.right);
+            offSet = rotationY * rotationX * offSet;
+            transform.position = playerTarget.transform.position + offSet;
         }
-        else if(transform.localEulerAngles.x <= 10)
+        else
         {
-            transform.Rotate(10, transform.eulerAngles.y, transform.eulerAngles.z);
+            transform.position = (playerTarget.transform.position + offSet) - enemyTarget.transform.position;
         }
-        transform.LookAt(target.transform);
+        transform.LookAt(lookAt.transform);
+    }
+    public void ChangeState()
+    {
+        if(lookAt == playerTarget)
+        {
+            lookAt = enemyTarget;
+        }
+        else
+        {
+            lookAt = playerTarget;
+        }
     }
 }

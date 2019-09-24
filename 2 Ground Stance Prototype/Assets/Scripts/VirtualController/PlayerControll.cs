@@ -78,6 +78,7 @@ public class PlayerControll : MonoBehaviour
                     nextState = StanceState.AgilityStance;
                 }
                 cameraButton = true;
+                mainCam.GetComponent<CameraFollow>().ChangeState();
             }
         }
         else if(cameraButton)
