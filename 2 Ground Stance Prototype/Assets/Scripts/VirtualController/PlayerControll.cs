@@ -4,6 +4,15 @@ using UnityEngine;
 
 public class PlayerControll : MonoBehaviour
 {
+    private enum StanceState
+    {
+        AgilityStance,
+        AggroStance
+    }
+
+    private StanceState currentState;
+    private StanceState nextSate;
+
     private InputPackage inputPackage;
     private Rigidbody rigi;
 
@@ -16,14 +25,40 @@ public class PlayerControll : MonoBehaviour
     private void Start()
     {        
         rigi = GetComponent<Rigidbody>();
+        ChangeState(currentState);
+    }
+
+    private void Update()
+    {
+        if (inputPackage != null)
+        {
+            MovementCalculation();
+        }
+
+
+        if (inputPackage.CameraButton)
+        {
+            if (currentState == StanceState.AgilityStance)
+            {
+                nextSate = StanceState.AggroStance;
+            }
+            else
+            {
+                nextSate = StanceState.AgilityStance;
+            }
+        }
     }
 
     private void FixedUpdate()
     {
         if (inputPackage != null)
         {
-            MovementCalculation();
             Move();
+        }
+
+        if(currentState != nextSate)
+        {
+            ChangeState(nextSate);
         }
     }
 
@@ -58,5 +93,18 @@ public class PlayerControll : MonoBehaviour
                                         0f,
                                         0f);
         }
+    }
+
+    private void ChangeState(StanceState changeState)
+    {
+        if(changeState == StanceState.AgilityStance)
+        {
+            movementSpeed = AgilityStance.movementSpeed;
+        }
+        else
+        {
+            movementSpeed = AggroStance.movementSpeed;
+        }
+        currentState = changeState;
     }
 }

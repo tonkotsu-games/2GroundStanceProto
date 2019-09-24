@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AggilityStance : MonoBehaviour
+public class AgilityStance : MonoBehaviour
 {
-
+    public static float movementSpeed = 10;
 }
