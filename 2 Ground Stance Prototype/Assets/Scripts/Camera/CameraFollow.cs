@@ -53,6 +53,10 @@ public class CameraFollow : MonoBehaviour
             offSet = offSetNew;
             offSetOld = offSetNew;
         }
+        if(lookAt == playerTarget)
+        {
+            lookAt.transform.position = new Vector3(playerTarget.transform.position.x, highSet, playerTarget.transform.position.z);
+        }
     }
     public void CameraMove()
     {
