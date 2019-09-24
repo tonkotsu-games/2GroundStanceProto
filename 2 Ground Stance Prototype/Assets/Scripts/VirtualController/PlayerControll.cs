@@ -19,11 +19,13 @@ public class PlayerControll : MonoBehaviour
     public InputPackage InputPackage { get => inputPackage; set => inputPackage = value; }
 
     [SerializeField] private float movementSpeed = 0;
+    Animator playerAnim;
 
     private Vector3 moveVector;
 
     private void Start()
-    {        
+    {
+        playerAnim = gameObject.GetComponent<Animator>();
         rigi = GetComponent<Rigidbody>();
         ChangeState(currentState);
     }
@@ -33,6 +35,10 @@ public class PlayerControll : MonoBehaviour
         if (inputPackage != null)
         {
             MovementCalculation();
+            playerAnim.SetFloat("runningVer", inputPackage.MoveVertical);
+            playerAnim.SetFloat("runningHor", inputPackage.MoveHorizontal);
+
+            
         }
 
 
@@ -54,6 +60,11 @@ public class PlayerControll : MonoBehaviour
         if (inputPackage != null)
         {
             Move();
+            if (inputPackage.InputA)
+            {
+                playerAnim.SetTrigger("jump");
+
+            }
         }
 
         if(currentState != nextSate)
