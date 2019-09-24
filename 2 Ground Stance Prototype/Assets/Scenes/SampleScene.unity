@@ -272,7 +272,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 128340899}
-  m_LocalRotation: {x: 0.23631202, y: -0.0000000039242987, z: 0.00000004847608, w: 0.97167724}
+  m_LocalRotation: {x: 0.23631202, y: -0.0000000039243004, z: 0.00000004847608, w: 0.97167724}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -423,7 +423,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 397146870}
-  m_LocalRotation: {x: 0.23631202, y: 6.606327e-10, z: 0.000000029623566, w: 0.97167724}
+  m_LocalRotation: {x: 0.23631203, y: -0.000000016058415, z: 0.00000003368964, w: 0.97167724}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -507,7 +507,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 534669902}
-  m_LocalRotation: {x: 0.23631203, y: -0.000000003465805, z: 0.000000046590824, w: 0.97167724}
+  m_LocalRotation: {x: 0.23631205, y: -0.000000005137714, z: 0.00000004699743, w: 0.97167724}
   m_LocalPosition: {x: 0.5946351, y: 4.6594753, z: -5.793122}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -754,7 +754,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 775527298}
-  m_LocalRotation: {x: 0.23631202, y: -0.000000019146881, z: 0.000000045679506, w: 0.97167724}
+  m_LocalRotation: {x: 0.23631203, y: -0.0000000022444542, z: 0.000000041568825, w: 0.97167724}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -1194,6 +1194,11 @@ PrefabInstance:
         type: 3}
       propertyPath: movementSpeed
       value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 4969699025174163499, guid: 3fde185bb7a68e341be0fd7e6bc22487,
+        type: 3}
+      propertyPath: jumpheight
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3fde185bb7a68e341be0fd7e6bc22487, type: 3}
