@@ -20,11 +20,14 @@ public class PlayerControll : MonoBehaviour
 
     [SerializeField] private float movementSpeed = 0;
     [SerializeField] private float jumpheight = 10;
+    [SerializeField] private float rotationSpeed = 0.1f;
     Animator playerAnim;
 
     private Vector3 moveVector;
 
     private bool cameraButton = false;
+
+    [SerializeField] GameObject mainCam;
 
     private void Start()
     {
@@ -35,8 +38,11 @@ public class PlayerControll : MonoBehaviour
 
     private void Update()
     {
+
         playerAnim.ResetTrigger("jumping");
         playerAnim.ResetTrigger("attacking");
+        playerAnim.ResetTrigger("evasion");
+
         if (inputPackage != null)
         {
             MovementCalculation();
@@ -51,8 +57,12 @@ public class PlayerControll : MonoBehaviour
             Jump();
 
         }
-        if (inputPackage.InputB) {
+        if (inputPackage.TriggerRight != 0) {
             Attack();
+        }
+        if (inputPackage.InputB)
+        {
+            Evade();
         }
         //This is for changing the Stances
         if (inputPackage.CameraButton)
@@ -107,9 +117,17 @@ public class PlayerControll : MonoBehaviour
             inputPackage.MoveVertical >= 0.1f ||
             inputPackage.MoveVertical <= -0.1f)
         {
-            rigi.velocity = new Vector3(moveVector.x,
-                                    rigi.velocity.y,
-                                    moveVector.z);
+            var forward = mainCam.transform.forward;
+            var right = mainCam.transform.right;
+            forward.y = 0f;
+            right.y = 0f;
+            forward.Normalize();
+            right.Normalize();
+
+            Vector3 desiredMoveDirection = forward * inputPackage.MoveVertical + mainCam.transform.right * inputPackage.MoveHorizontal;
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(desiredMoveDirection), rotationSpeed);
+
+            transform.Translate(0, 0, inputPackage.MoveVertical*movementSpeed);
         }
         else
         {
@@ -160,6 +178,18 @@ public class PlayerControll : MonoBehaviour
         }
 
         playerAnim.SetTrigger("attacking");
+    }
+
+    void Evade()
+    {
+        switch (currentState)
+        {
+            case StanceState.AgilityStance:
+                break;
+            case StanceState.AggroStance:
+                break;
+        }
+        playerAnim.SetTrigger("evasion");
     }
 
 }
