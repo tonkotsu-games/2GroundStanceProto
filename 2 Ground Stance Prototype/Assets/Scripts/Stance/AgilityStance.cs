@@ -4,5 +4,5 @@ using UnityEngine;
 
 public class AgilityStance : MonoBehaviour
 {
-    public static float movementSpeed = 0.5f;
+    public static float movementSpeed = 10f;
 }
