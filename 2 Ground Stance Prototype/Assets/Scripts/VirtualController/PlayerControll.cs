@@ -29,7 +29,7 @@ public class PlayerControll : MonoBehaviour
     }
 
     private void Update()
-    {
+    {       
         if (inputPackage != null)
         {
             MovementCalculation();
