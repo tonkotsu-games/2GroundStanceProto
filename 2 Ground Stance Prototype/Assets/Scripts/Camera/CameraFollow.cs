@@ -18,12 +18,6 @@ public class CameraFollow : MonoBehaviour
     Vector3 offSet;
     Vector3 direction;
 
-
-    private void Start()
-    {
-        offSet =new Vector3(target.transform.position.x, target.transform.position.y + offSetY, target.transform.position.z + offSetZ) - target.transform.position;
-    }
-
     void Update()
     {
         if (inputPackage != null)
@@ -32,20 +26,24 @@ public class CameraFollow : MonoBehaviour
         }
         direction = transform.forward;
     }
+    private void FixedUpdate()
+    {
+        offSet = new Vector3(0, offSetY, offSetZ);
 
+    }
     public void CameraMove()
     {
         rotationX = Quaternion.AngleAxis(inputPackage.CameraHorizontal, Vector3.up);
         rotationY = Quaternion.AngleAxis(inputPackage.CameraVertical, Vector3.right);
         offSet = rotationY * rotationX * offSet;
         transform.position = target.transform.position + offSet;
-        if(transform.eulerAngles.x >= 90)
+        if(transform.localEulerAngles.x >= 70)
         {
-            transform.rotation = Quaternion.Euler(90, transform.eulerAngles.y, transform.eulerAngles.z);
+            transform.Rotate(70, transform.eulerAngles.y, transform.eulerAngles.z);
         }
-        else if(transform.eulerAngles.x <= 0)
+        else if(transform.localEulerAngles.x <= 10)
         {
-            transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y, transform.eulerAngles.z);
+            transform.Rotate(10, transform.eulerAngles.y, transform.eulerAngles.z);
         }
         transform.LookAt(target.transform);
     }
