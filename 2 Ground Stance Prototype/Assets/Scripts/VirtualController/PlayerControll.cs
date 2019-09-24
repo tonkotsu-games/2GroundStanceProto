@@ -31,7 +31,7 @@ public class PlayerControll : MonoBehaviour
     }
 
     private void Update()
-    {       
+    {
         if (inputPackage != null)
         {
             MovementCalculation();
@@ -83,7 +83,7 @@ public class PlayerControll : MonoBehaviour
                                  0f, 
                                  inputPackage.MoveVertical);
 
-        moveVector = moveVector.normalized * move * movementSpeed;
+        moveVector =moveVector.normalized * move * movementSpeed;
     }
 
     private void Move()
@@ -93,6 +93,11 @@ public class PlayerControll : MonoBehaviour
             inputPackage.MoveVertical >= 0.1f ||
             inputPackage.MoveVertical <= -0.1f)
         {
+            Vector3 direction = Camera.main.transform.forward;
+            direction.y = 0f;
+            direction.Normalize();
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), 10);
+            moveVector = Camera.main.transform.TransformDirection(moveVector);
             rigi.velocity = new Vector3(moveVector.x,
                                     0f,
                                     moveVector.z);
