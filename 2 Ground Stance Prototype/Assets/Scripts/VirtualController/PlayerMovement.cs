@@ -41,6 +41,7 @@ public class PlayerMovement : MonoBehaviour
 
     private bool animationLocked = false;
 
+    [SerializeField] GameObject enemy;
 
     void Start()
     {
@@ -64,25 +65,23 @@ public class PlayerMovement : MonoBehaviour
         anim.ResetTrigger("jumping");
         anim.ResetTrigger("attacking");
         anim.ResetTrigger("evasion");
+        anim.ResetTrigger("evasionRight");
+        anim.ResetTrigger("evasionLeft");
 
         #endregion
         if (evasion)
         {
-            var forward = cam.transform.forward;
-            var right = cam.transform.right;
 
-            forward.y = 0f;
-            right.y = 0f;
-
-            forward.Normalize();
-            right.Normalize();
-            desiredMoveDirection = forward * InputZ + right * InputX;
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(desiredMoveDirection), desiredRotationSpeed);
+            
+            if (!blockRotationPlayer)
+            {
+                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(desiredMoveDirection), desiredRotationSpeed);
+            }
             controller.Move(desiredMoveDirection * Time.deltaTime * evasionSpeed);
             StartCoroutine(animationLock());
+            
         }
 
-        Debug.Log("Camera Button: " + cameraButton);
         if (!animationLocked)
         {
             if (inputPackage.CameraButton)
@@ -121,6 +120,15 @@ public class PlayerMovement : MonoBehaviour
                     Debug.Log("StanceChargeLevel: " + stanceChargeLevel);
                     beat = true;
                 }
+                var forward = cam.transform.forward;
+                var right = cam.transform.right;
+
+                forward.y = 0f;
+                right.y = 0f;
+
+                forward.Normalize();
+                right.Normalize();
+                desiredMoveDirection = forward * InputZ + right * InputX;
                 Evade();
                 StartCoroutine(animationLock());
             }
@@ -171,8 +179,12 @@ public class PlayerMovement : MonoBehaviour
         if(blockRotationPlayer == false)
         {
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(desiredMoveDirection), desiredRotationSpeed);
-            controller.Move(desiredMoveDirection * Time.deltaTime * speed);
         }
+        else
+        {
+            transform.LookAt(enemy.transform);
+        }
+        controller.Move(desiredMoveDirection * Time.deltaTime * speed);
     }
 
     void InputMagnitude()
@@ -208,14 +220,18 @@ public class PlayerMovement : MonoBehaviour
             switch (requestedStance)
             {
                 case Stances.Agility:
+                    blockRotationPlayer = false;
                     speed = speed * 2;
                     anim.SetInteger("Stance", 0);
                     nextStance = Stances.Aggro;
+                    evasionSpeed = 15;
                     break;
                 case Stances.Aggro:
+                    blockRotationPlayer = true;
                     speed = speed * 0.5f;
                     anim.SetInteger("Stance", 1);
                     nextStance = Stances.Agility;
+                    evasionSpeed = 1;
                     break;
             }
         }
@@ -245,6 +261,18 @@ public class PlayerMovement : MonoBehaviour
     {
         if (currentStance == Stances.Aggro)
         {
+            if(inputPackage.MoveHorizontal <= -0.5f)
+            {
+                anim.SetTrigger("evasionLeft");
+            }
+            else if(inputPackage.MoveHorizontal >= 0.5f)
+            {
+                anim.SetTrigger("evasionRight");
+            }
+            else
+            {
+                anim.SetTrigger("evasionLeft");
+            }
         }
         else
         {

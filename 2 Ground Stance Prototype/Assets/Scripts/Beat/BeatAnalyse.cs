@@ -84,8 +84,8 @@ public class BeatAnalyse : MonoBehaviour
         Gizmos.color = Color.green;
         for (int i = 0; i < BeatAnalyse.beatStarts.Count; i++)
         {
-            Gizmos.DrawLine(displacement + new Vector3((BeatAnalyse.beatStarts[i] - windowTrigger) * widthMulti, 0, 0),
-                            displacement + new Vector3((BeatAnalyse.beatStarts[i] + windowTrigger) * widthMulti, 0, 0));
+            Gizmos.DrawLine(displacement + new Vector3((BeatAnalyse.beatStarts[i] - windowTrigger + 1000) * widthMulti, 0, 0),
+                            displacement + new Vector3((BeatAnalyse.beatStarts[i] + windowTrigger + 1000) * widthMulti, 0, 0));
         }
         Gizmos.color = Color.red;
         Gizmos.DrawLine(displacement + new Vector3(timeSample * widthMulti, 0, 0), displacement + new Vector3(timeSample * widthMulti, heightMulti, 0));
