@@ -150,29 +150,4 @@ public class PlayerControll : MonoBehaviour
         }
         currentState = changeState;
     }
-
-    private void Jump()
-    {
-        switch (currentState)
-        {
-            case StanceState.AgilityStance:
-                playerAnim.SetTrigger("jumping");
-                rigi.AddForce(new Vector3(0, jumpheight, 0));
-                break;
-            case StanceState.AggroStance:
-                break;
-        }
-    }
-    private void Attack()
-    {
-        switch (currentState)
-        {
-            case StanceState.AgilityStance:
-                break;
-            case StanceState.AggroStance:
-                break;
-        }
-
-        playerAnim.SetTrigger("attacking");
-    }
 }
