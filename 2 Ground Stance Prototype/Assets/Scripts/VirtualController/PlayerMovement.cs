@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
 
+    BeatAnalyse beatBox;
     public float InputX;
     public float InputZ;
 
@@ -26,14 +27,15 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 positionAfterEvade;
     public float evasionSpeed;
     private bool evasion;
-
+    private bool beat;
     private InputPackage inputPackage;
     public InputPackage InputPackage { get => inputPackage; set => inputPackage = value; }
 
     int stance = 0;
     public enum Stances { Agility,Aggro}
-    Stances currentStance = Stances.Agility;
+    public static Stances currentStance = Stances.Agility;
     Stances nextStance = Stances.Aggro;
+    public static int stanceChargeLevel = 0;
 
     private bool cameraButton = false;
 
@@ -42,6 +44,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Start()
     {
+        beatBox = GameObject.FindWithTag("MusicBox").GetComponent<BeatAnalyse>();
         anim = gameObject.GetComponent<Animator>();
         controller = gameObject.GetComponent<CharacterController>();
         cam = Camera.main;
@@ -51,6 +54,11 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(!beatBox.IsOnBeat(100))
+        {
+            beat = false;
+        }
+
         #region TriggerResets
 
         anim.ResetTrigger("jumping");
@@ -73,30 +81,46 @@ public class PlayerMovement : MonoBehaviour
             controller.Move(desiredMoveDirection * Time.deltaTime * evasionSpeed);
             StartCoroutine(animationLock());
         }
-            
-        
+
+        Debug.Log("Camera Button: " + cameraButton);
         if (!animationLocked)
         {
-            if (inputPackage.CameraButton && !cameraButton)
+            if (inputPackage.CameraButton)
             {
-
                 ChangePlayerStance(nextStance);
-                cameraButton = true;
             }
 
             if (inputPackage.InputA)
             {
+                if (beatBox.IsOnBeat(100) && stanceChargeLevel < 4 && !beat)
+                {
+                    stanceChargeLevel++;
+                    Debug.Log("StanceChargeLevel: " + stanceChargeLevel);
+                    beat = true;
+                }
                 Jump();
             }
 
             if (inputPackage.TriggerRight != 0)
             {
+                if (beatBox.IsOnBeat(100) && stanceChargeLevel < 4 && !beat)
+                {
+                    stanceChargeLevel++;
+                    Debug.Log("StanceChargeLevel: " + stanceChargeLevel);
+                    beat = true;
+                }
                 Attack();
                 StartCoroutine(animationLock());
             }
 
             if (inputPackage.InputB)
             {
+                if (beatBox.IsOnBeat(100) && stanceChargeLevel < 4 && !beat)
+                {
+                    stanceChargeLevel++;
+                    Debug.Log("StanceChargeLevel: " + stanceChargeLevel);
+                    beat = true;
+                }
                 Evade();
                 StartCoroutine(animationLock());
             }
@@ -180,7 +204,7 @@ public class PlayerMovement : MonoBehaviour
         {
 
             currentStance = requestedStance;
-
+            stanceChargeLevel = 0;
             switch (requestedStance)
             {
                 case Stances.Agility:
