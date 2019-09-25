@@ -11,6 +11,7 @@ public class PlayerMovement : MonoBehaviour
     public Vector3 desiredMoveDirection;
     public bool blockRotationPlayer;
 
+    public float jumpHeight;
     public float desiredRotationSpeed;
     public Animator anim;
     public float speed;
@@ -21,6 +22,10 @@ public class PlayerMovement : MonoBehaviour
     public bool isGrounded;
     public float verticalVel;
     private Vector3 moveVector;
+    private Vector3 evasionHeading;
+    private Vector3 positionAfterEvade;
+    public float evasionSpeed;
+    private bool evasion;
 
     private InputPackage inputPackage;
     public InputPackage InputPackage { get => inputPackage; set => inputPackage = value; }
@@ -31,6 +36,8 @@ public class PlayerMovement : MonoBehaviour
     Stances nextStance = Stances.Aggro;
 
     private bool cameraButton = false;
+
+    private bool animationLocked = false;
 
 
     void Start()
@@ -47,42 +54,74 @@ public class PlayerMovement : MonoBehaviour
         #region TriggerResets
 
         anim.ResetTrigger("jumping");
+        anim.ResetTrigger("attacking");
+        anim.ResetTrigger("evasion");
 
         #endregion
-
-        if (inputPackage.CameraButton)
+        if (evasion)
         {
-            if (!cameraButton)
+            var forward = cam.transform.forward;
+            var right = cam.transform.right;
+
+            forward.y = 0f;
+            right.y = 0f;
+
+            forward.Normalize();
+            right.Normalize();
+            desiredMoveDirection = forward * InputZ + right * InputX;
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(desiredMoveDirection), desiredRotationSpeed);
+            controller.Move(desiredMoveDirection * Time.deltaTime * evasionSpeed);
+            StartCoroutine(animationLock());
+        }
+            
+        
+        if (!animationLocked)
+        {
+            if (inputPackage.CameraButton && !cameraButton)
             {
+
                 ChangePlayerStance(nextStance);
                 cameraButton = true;
             }
-            else
+
+            if (inputPackage.InputA)
             {
-                cameraButton = false;
+                Jump();
             }
 
-        }
+            if (inputPackage.TriggerRight != 0)
+            {
+                Attack();
+                StartCoroutine(animationLock());
+            }
 
-        if (inputPackage.InputA)
-        {
-            Jump();
-        }
-        InputMagnitude();
+            if (inputPackage.InputB)
+            {
+                Evade();
+                StartCoroutine(animationLock());
+            }
 
-        isGrounded = controller.isGrounded;
-        
-        if (isGrounded)
-        {
-            verticalVel -= 0;
+            InputMagnitude();
+
+            isGrounded = controller.isGrounded;
+
+            if (isGrounded)
+            {
+                verticalVel = 0;
+            }
+            else
+            {
+                verticalVel -= 2;
+            }
+
+            moveVector = new Vector3(0, verticalVel, 0);
+            controller.Move(moveVector);
         }
-        else
-        {
-            verticalVel -= 2;
-        }
-        
-        moveVector = new Vector3(0, verticalVel, 0);
-        controller.Move(moveVector);
+    }
+
+    private void FixedUpdate()
+    {
+        cameraButton = false;
     }
 
     void PlayerMoveAndRotation()
@@ -163,11 +202,38 @@ public class PlayerMovement : MonoBehaviour
         switch (currentStance)
         {
             case Stances.Agility:
+
+                controller.Move(new Vector3(0, jumpHeight, 0));
                 anim.SetTrigger("jumping");
                
                 break;
             case Stances.Aggro:
                 break;
         }
+    }
+
+    void Attack()
+    {
+        anim.SetTrigger("attacking");
+    }
+
+    void Evade()
+    {
+        if (currentStance == Stances.Aggro)
+        {
+        }
+        else
+        {
+            anim.SetTrigger("evasion");
+        }
+        evasion = true;
+    }
+
+    IEnumerator animationLock()
+    {
+        animationLocked = true;
+        yield return new WaitForSeconds(anim.GetCurrentAnimatorStateInfo(0).length);
+        animationLocked = false;
+        evasion = false;
     }
 }
