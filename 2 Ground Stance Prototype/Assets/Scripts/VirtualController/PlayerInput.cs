@@ -172,7 +172,7 @@ public class PlayerInput : MonoBehaviour, IProvider
     private bool InputCameraButton()
     {
         bool cameraButton = false;
-        if(Input.GetButton("CameraButton"))
+        if(Input.GetButtonDown("CameraButton"))
         {
             cameraButton = true;
         }
