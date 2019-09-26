@@ -138,14 +138,13 @@ public class PlayerMovementProt2 : MonoBehaviour
                 controller.Move(moveVector);
             }
         }
-    }
 
     private void FixedUpdate()
     {
         cameraButton = false;
     }
 
-    void PlayerMoveAndRotation()
+    private void PlayerMoveAndRotation()
     {
 
         //InputX = Input.GetAxisRaw("Horizontal");
