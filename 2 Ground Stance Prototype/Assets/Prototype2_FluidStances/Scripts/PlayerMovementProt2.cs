@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerMovementProt2 : MonoBehaviour
 {
-
+    VirtuellController input;
     BeatAnalyse beatBox;
     public float InputX;
     public float InputZ;
@@ -31,11 +31,25 @@ public class PlayerMovementProt2 : MonoBehaviour
     private InputPackage inputPackage;
     public InputPackage InputPackage { get => inputPackage; set => inputPackage = value; }
 
+    //Stances
     int stance = 0;
-    public enum Stances { Agility,Aggro}
-    public static Stances currentStance = Stances.Agility;
-    Stances nextStance = Stances.Aggro;
-    public static int stanceChargeLevel = 0;
+    public enum Stances { Neutral, Jump, Slide, Attack, Parry }
+    private Stances currentStance = Stances.Neutral;
+
+    public enum JumpStances { BaseJump, AirJuggle }
+    private JumpStances currentJumpStance = JumpStances.BaseJump;
+
+    public enum SlideStances { Slide }
+    private SlideStances currentSlideStance = SlideStances.Slide;
+
+    public enum AttackStances { Attack }
+    private AttackStances currentAttackStance = AttackStances.Attack;
+
+    public enum ParryStances { GroundParry, AirParry }
+    private ParryStances currentParryStance = ParryStances.GroundParry;
+
+    //Stances nextStance = Stances.Aggro;
+    //public static int stanceChargeLevel = 0;
 
     private bool cameraButton = false;
 
@@ -43,94 +57,70 @@ public class PlayerMovementProt2 : MonoBehaviour
 
     [SerializeField] GameObject enemy;
 
+
+
     void Start()
     {
+        input = GetComponent<VirtuellController>();
         beatBox = GameObject.FindWithTag("MusicBox").GetComponent<BeatAnalyse>();
         anim = gameObject.GetComponent<Animator>();
         controller = gameObject.GetComponent<CharacterController>();
         cam = Camera.main;
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(!beatBox.IsOnBeat(100))
-        {
-            beat = false;
-        }
+        inputPackage = input.InputPackage;
+        //if(!beatBox.IsOnBeat(100))
+        //{
+        //    beat = false;
+        //}
 
-        #region TriggerResets
+        //#region TriggerResets
+        //
+        //anim.ResetTrigger("jumping");
+        //anim.ResetTrigger("attacking");
+        //anim.ResetTrigger("evasion");
+        //anim.ResetTrigger("evasionRight");
+        //anim.ResetTrigger("evasionLeft");
+        //
+        //#endregion
 
-        anim.ResetTrigger("jumping");
-        anim.ResetTrigger("attacking");
-        anim.ResetTrigger("evasion");
-        anim.ResetTrigger("evasionRight");
-        anim.ResetTrigger("evasionLeft");
 
-        #endregion
-        if (evasion)
-        {
-
-            
-            if (!blockRotationPlayer)
-            {
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(desiredMoveDirection), desiredRotationSpeed);
-            }
-            controller.Move(desiredMoveDirection * Time.deltaTime * evasionSpeed);
-            StartCoroutine(animationLock());
-            
-        }
+        //Did you become grounded?
 
         if (!animationLocked)
         {
-            if (inputPackage.CameraButton)
-            {
-                ChangePlayerStance(nextStance);
-            }
+
 
             if (inputPackage.InputA)
             {
-                if (beatBox.IsOnBeat(100) && stanceChargeLevel < 4 && !beat)
-                {
-                    stanceChargeLevel++;
-                    Debug.Log("StanceChargeLevel: " + stanceChargeLevel);
-                    beat = true;
-                }
-                Jump();
+                //if (beatBox.IsOnBeat(100) && stanceChargeLevel < 4 && !beat)
+                //{
+                //    stanceChargeLevel++;
+                //    Debug.Log("StanceChargeLevel: " + stanceChargeLevel);
+                //    beat = true;
+                //}
+                HandleJump();
             }
-
-            if (inputPackage.TriggerRight != 0)
+            else if (inputPackage.InputY)
             {
-                if (beatBox.IsOnBeat(100) && stanceChargeLevel < 4 && !beat)
-                {
-                    stanceChargeLevel++;
-                    Debug.Log("StanceChargeLevel: " + stanceChargeLevel);
-                    beat = true;
-                }
-                Attack();
-                StartCoroutine(animationLock());
+                HandleParry();
             }
-
-            if (inputPackage.InputB)
+            else if (inputPackage.InputX)
             {
-                if (beatBox.IsOnBeat(100) && stanceChargeLevel < 4 && !beat)
-                {
-                    stanceChargeLevel++;
-                    Debug.Log("StanceChargeLevel: " + stanceChargeLevel);
-                    beat = true;
-                }
-                var forward = cam.transform.forward;
-                var right = cam.transform.right;
-
-                forward.y = 0f;
-                right.y = 0f;
-
-                forward.Normalize();
-                right.Normalize();
-                desiredMoveDirection = forward * InputZ + right * InputX;
-                Evade();
-                StartCoroutine(animationLock());
+                HandleAttack();
+            }
+            else if (inputPackage.InputB)
+            {
+                HandleSlide();
+            }
+            else
+            {
+                //check if we should be in neutral --> grounded, anim neutral --> Stance Neutral
+                //--> execute neutral --> Walk Run and so on
             }
 
             InputMagnitude();
@@ -176,7 +166,7 @@ public class PlayerMovementProt2 : MonoBehaviour
 
         desiredMoveDirection = forward * InputZ + right * InputX;
 
-        if(blockRotationPlayer == false)
+        if (blockRotationPlayer == false)
         {
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(desiredMoveDirection), desiredRotationSpeed);
         }
@@ -189,8 +179,8 @@ public class PlayerMovementProt2 : MonoBehaviour
 
     void InputMagnitude()
     {
-       // InputX = Input.GetAxisRaw("Horizontal");
-       // InputZ = Input.GetAxisRaw("Vertical");
+        // InputX = Input.GetAxisRaw("Horizontal");
+        // InputZ = Input.GetAxisRaw("Vertical");
         InputX = inputPackage.MoveHorizontal;
         InputZ = inputPackage.MoveVertical;
 
@@ -204,82 +194,99 @@ public class PlayerMovementProt2 : MonoBehaviour
             anim.SetFloat("InputMagnitude", Speed, 0f, Time.deltaTime);
             PlayerMoveAndRotation();
         }
-        else if ( Speed < allowPlayerRotation)
+        else if (Speed < allowPlayerRotation)
         {
             anim.SetFloat("InputMagnitude", Speed, 0f, Time.deltaTime);
         }
     }
 
-    public void ChangePlayerStance(Stances requestedStance)
-    {
-        if (requestedStance != currentStance)
-        {
 
-            currentStance = requestedStance;
-            stanceChargeLevel = 0;
-            switch (requestedStance)
+    //Refers to Behaviour based on previous stance
+    private void HandleParry()
+    {
+        ParryBehaviour();
+        currentStance = Stances.Parry;
+    }
+    private void HandleAttack()
+    {
+        AttackBehaviour();
+        currentStance = Stances.Attack;
+    }
+    private void HandleSlide()
+    {
+        SlideBehaviour();
+        currentStance = Stances.Slide;
+    }
+
+    private void HandleJump()
+    {
+        if(currentStance == Stances.Neutral)
+        {
+            BaseJumpBehaviour();
+        }
+        else if(currentStance == Stances.Parry)
+        {
+            if (currentParryStance == ParryStances.GroundParry)
             {
-                case Stances.Agility:
-                    blockRotationPlayer = false;
-                    speed = speed * 2;
-                    anim.SetInteger("Stance", 0);
-                    nextStance = Stances.Aggro;
-                    evasionSpeed = 15;
-                    break;
-                case Stances.Aggro:
-                    blockRotationPlayer = true;
-                    speed = speed * 0.5f;
-                    anim.SetInteger("Stance", 1);
-                    nextStance = Stances.Agility;
-                    evasionSpeed = 1;
-                    break;
+                BaseJumpBehaviour();
+            }
+            else
+            {
+                //AirJuggle
             }
         }
-    }
-
-    private void Jump()
-    {
-        switch (currentStance)
+        else if(currentStance == Stances.Jump)
         {
-            case Stances.Agility:
-
-                controller.Move(new Vector3(0, jumpHeight, 0));
-                anim.SetTrigger("jumping");
-               
-                break;
-            case Stances.Aggro:
-                break;
+            //Airjuggle
         }
+        else if (currentStance == Stances.Attack)
+        {
+            BaseJumpBehaviour();
+        }
+        else if (currentStance == Stances.Slide)
+        {
+            BaseJumpBehaviour();
+        }
+
+        currentStance = Stances.Jump;
     }
 
-    void Attack()
+
+    //Parry Behaviour
+    private void ParryBehaviour()
+    {
+
+        
+    }
+
+    //Attack Behaviour
+    private void AttackBehaviour()
     {
         anim.SetTrigger("attacking");
     }
 
-    void Evade()
+    //Slide Behaviour
+    private void SlideBehaviour()
     {
-        if (currentStance == Stances.Aggro)
-        {
-            if(inputPackage.MoveHorizontal <= -0.5f)
-            {
-                anim.SetTrigger("evasionLeft");
-            }
-            else if(inputPackage.MoveHorizontal >= 0.5f)
-            {
-                anim.SetTrigger("evasionRight");
-            }
-            else
-            {
-                anim.SetTrigger("evasionLeft");
-            }
-        }
-        else
-        {
-            anim.SetTrigger("evasion");
-        }
-        evasion = true;
+       
     }
+
+    //Jump Behaviour
+    private void BaseJumpBehaviour()
+    {
+        controller.Move(new Vector3(0, jumpHeight, 0));
+        anim.SetTrigger("jumping");
+    }
+
+    private void AirJumpBehaviour()
+    {
+        //get controller direction in here
+        controller.Move(new Vector3(0, jumpHeight, 0));
+        anim.SetTrigger("jumping");
+    }
+
+
+
 
     IEnumerator animationLock()
     {
