@@ -55,9 +55,11 @@ public class PlayerMovementProt2 : MonoBehaviour
 
     private bool animationLocked = false;
 
-    [SerializeField] GameObject enemy;
+    [SerializeField]
+    private Collider col;
 
-
+    [SerializeField]
+    private GameObject enemy;
 
     void Start()
     {
@@ -66,12 +68,14 @@ public class PlayerMovementProt2 : MonoBehaviour
         anim = gameObject.GetComponent<Animator>();
         controller = gameObject.GetComponent<CharacterController>();
         cam = Camera.main;
-
+        col.enabled = false;
     }
 
     // Update is called once per frame
     void Update()
     {
+        isGrounded = controller.isGrounded;
+
         inputPackage = input.InputPackage;
         //if(!beatBox.IsOnBeat(100))
         //{
@@ -119,25 +123,40 @@ public class PlayerMovementProt2 : MonoBehaviour
             }
             else
             {
+
+                if (isGrounded && currentStance != Stances.Neutral)
+                {
+                    currentStance = Stances.Neutral;
+                }
+                InputMagnitude();
+
+                if (isGrounded)
+                {
+                    verticalVel = 0;
+                }
+                else
+                {
+                    verticalVel = -0.98f;
+                }
+
+                moveVector = new Vector3(0, verticalVel, 0);
+                controller.Move(moveVector);
+
                 //check if we should be in neutral --> grounded, anim neutral --> Stance Neutral
                 //--> execute neutral --> Walk Run and so on
             }
 
-            InputMagnitude();
-
-            isGrounded = controller.isGrounded;
-
-            if (isGrounded)
-            {
-                verticalVel = 0;
-            }
-            else
-            {
-                verticalVel -= 2;
-            }
-
-            moveVector = new Vector3(0, verticalVel, 0);
-            controller.Move(moveVector);
+            // if (isGrounded)
+            //     {
+            //         verticalVel = 0;
+            //     }
+            //     else
+            //     {
+            //         verticalVel -= 2;
+            //     }
+            //
+            //     moveVector = new Vector3(0, verticalVel, 0);
+            //     controller.Move(moveVector);
         }
     }
 
@@ -146,7 +165,7 @@ public class PlayerMovementProt2 : MonoBehaviour
         cameraButton = false;
     }
 
-    void PlayerMoveAndRotation()
+    private void PlayerMoveAndRotation()
     {
 
         //InputX = Input.GetAxisRaw("Horizontal");
@@ -295,4 +314,15 @@ public class PlayerMovementProt2 : MonoBehaviour
         animationLocked = false;
         evasion = false;
     }
+
+
+    public void ColliderEnabled()
+    {
+        col.enabled = true;
+    }
+    public void ColliderDisabled()
+    {
+        col.enabled = false;
+    }
+
 }
