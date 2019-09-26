@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-
+    VirtuellController inputController;
     BeatAnalyse beatBox;
     public float InputX;
     public float InputZ;
@@ -29,7 +29,6 @@ public class PlayerMovement : MonoBehaviour
     private bool evasion;
     private bool beat;
     private InputPackage inputPackage;
-    public InputPackage InputPackage { get => inputPackage; set => inputPackage = value; }
 
     int stance = 0;
     public enum Stances { Agility,Aggro}
@@ -45,6 +44,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Start()
     {
+        inputController = GetComponent<VirtuellController>();
         beatBox = GameObject.FindWithTag("MusicBox").GetComponent<BeatAnalyse>();
         anim = gameObject.GetComponent<Animator>();
         controller = gameObject.GetComponent<CharacterController>();
@@ -55,6 +55,7 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        inputPackage = inputController.InputPackage;
         if(!beatBox.IsOnBeat(100))
         {
             beat = false;
