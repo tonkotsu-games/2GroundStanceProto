@@ -136,7 +136,7 @@ public class PlayerMovementProt2 : MonoBehaviour
                 }
                 else
                 {
-                    verticalVel -= 2;
+                    verticalVel = -0.98f;
                 }
 
                 moveVector = new Vector3(0, verticalVel, 0);
