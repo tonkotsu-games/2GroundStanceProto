@@ -16,6 +16,9 @@ public class Boss : MonoBehaviour
     private bool attacking;
     private bool facingPlayer = false;
     public float minAngle = 0.6f;
+    [SerializeField]
+    private Collider col;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -26,6 +29,7 @@ public class Boss : MonoBehaviour
         {
             Debug.LogWarning("Player not tagged!!!");
         }
+        col.enabled = false;
     }
 
     // Update is called once per frame
@@ -71,7 +75,7 @@ public class Boss : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = new Color(1, 0, 0, 0.5f);
-        Gizmos.DrawSphere(transform.position - new Vector3(0,1.5f,0), aggroRange);
+        Gizmos.DrawWireSphere(transform.position - new Vector3(0,1.5f,0), aggroRange);
     }
 
     IEnumerator AnimationLockTimer()
@@ -80,4 +84,14 @@ public class Boss : MonoBehaviour
         yield return new WaitForSeconds(bossAnim.GetCurrentAnimatorStateInfo(0).length + 1);
         attacking = false;
     }
+
+    public void ColliderEnabled()
+    {
+        col.enabled = true;
+    }
+    public void ColliderDisabled()
+    {
+        col.enabled = false;
+    }
+
 }
