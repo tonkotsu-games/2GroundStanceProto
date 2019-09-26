@@ -32,6 +32,11 @@ public class VirtuellController : MonoBehaviour
         }
     }
 
+    public void GetPackageForActor()
+    {
+        InputPackage = inputProvider.GetPackage();
+    }
+
     private void OnGUI()
     {
         InputPackage = inputProvider.GetPackage();
