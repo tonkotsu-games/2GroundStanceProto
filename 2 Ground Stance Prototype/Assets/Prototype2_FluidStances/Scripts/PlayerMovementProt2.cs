@@ -55,6 +55,8 @@ public class PlayerMovementProt2 : MonoBehaviour
 
     private bool animationLocked = false;
 
+    private Rigidbody rigid;
+
     [SerializeField]
     private Collider col;
 
@@ -69,6 +71,7 @@ public class PlayerMovementProt2 : MonoBehaviour
         controller = gameObject.GetComponent<CharacterController>();
         cam = Camera.main;
         col.enabled = false;
+        rigid = GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
@@ -251,12 +254,12 @@ public class PlayerMovementProt2 : MonoBehaviour
             }
             else
             {
-                //AirJuggle
+                AirJumpBehaviour();
             }
         }
         else if(currentStance == Stances.Jump)
         {
-            //Airjuggle
+            AirJumpBehaviour();
         }
         else if (currentStance == Stances.Attack)
         {
@@ -274,8 +277,8 @@ public class PlayerMovementProt2 : MonoBehaviour
     //Parry Behaviour
     private void ParryBehaviour()
     {
+        anim.SetTrigger("parrying");
 
-        
     }
 
     //Attack Behaviour
@@ -287,7 +290,7 @@ public class PlayerMovementProt2 : MonoBehaviour
     //Slide Behaviour
     private void SlideBehaviour()
     {
-       
+        anim.SetTrigger("sliding");
     }
 
     //Jump Behaviour
