@@ -55,9 +55,11 @@ public class PlayerMovementProt2 : MonoBehaviour
 
     private bool animationLocked = false;
 
-    [SerializeField] GameObject enemy;
+    [SerializeField]
+    private Collider col;
 
-
+    [SerializeField]
+    private GameObject enemy;
 
     void Start()
     {
@@ -66,7 +68,7 @@ public class PlayerMovementProt2 : MonoBehaviour
         anim = gameObject.GetComponent<Animator>();
         controller = gameObject.GetComponent<CharacterController>();
         cam = Camera.main;
-
+        col.enabled = false;
     }
 
     // Update is called once per frame
@@ -123,21 +125,18 @@ public class PlayerMovementProt2 : MonoBehaviour
                 //--> execute neutral --> Walk Run and so on
             }
 
-            InputMagnitude();
+                if (isGrounded)
+                {
+                    verticalVel = 0;
+                }
+                else
+                {
+                    verticalVel -= 2;
+                }
 
-            isGrounded = controller.isGrounded;
-
-            if (isGrounded)
-            {
-                verticalVel = 0;
+                moveVector = new Vector3(0, verticalVel, 0);
+                controller.Move(moveVector);
             }
-            else
-            {
-                verticalVel -= 2;
-            }
-
-            moveVector = new Vector3(0, verticalVel, 0);
-            controller.Move(moveVector);
         }
     }
 
@@ -295,4 +294,15 @@ public class PlayerMovementProt2 : MonoBehaviour
         animationLocked = false;
         evasion = false;
     }
+
+
+    public void ColliderEnabled()
+    {
+        col.enabled = true;
+    }
+    public void ColliderDisabled()
+    {
+        col.enabled = false;
+    }
+
 }
