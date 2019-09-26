@@ -41,7 +41,11 @@ public class PlayerMovementProt2 : MonoBehaviour
 
     private bool animationLocked = false;
 
-    [SerializeField] GameObject enemy;
+    [SerializeField]
+    private Collider col;
+
+    [SerializeField]
+    private GameObject enemy;
 
     void Start()
     {
@@ -50,7 +54,7 @@ public class PlayerMovementProt2 : MonoBehaviour
         anim = gameObject.GetComponent<Animator>();
         controller = gameObject.GetComponent<CharacterController>();
         cam = Camera.main;
-        
+        col.enabled = false;
     }
 
     // Update is called once per frame
@@ -83,73 +87,75 @@ public class PlayerMovementProt2 : MonoBehaviour
             StartCoroutine(animationLock());
             
         }
-
-        if (!animationLocked)
+        if (inputPackage != null)
         {
-            if (inputPackage.CameraButton)
+            if (!animationLocked)
             {
-                ChangePlayerStance(nextStance);
-            }
-
-            if (inputPackage.InputA)
-            {
-                if (beatBox.IsOnBeat(100) && stanceChargeLevel < 4 && !beat)
+                if (inputPackage.CameraButton)
                 {
-                    stanceChargeLevel++;
-                    Debug.Log("StanceChargeLevel: " + stanceChargeLevel);
-                    beat = true;
+                    ChangePlayerStance(nextStance);
                 }
-                Jump();
-            }
 
-            if (inputPackage.TriggerRight != 0)
-            {
-                if (beatBox.IsOnBeat(100) && stanceChargeLevel < 4 && !beat)
+                if (inputPackage.InputA)
                 {
-                    stanceChargeLevel++;
-                    Debug.Log("StanceChargeLevel: " + stanceChargeLevel);
-                    beat = true;
+                    if (beatBox.IsOnBeat(100) && stanceChargeLevel < 4 && !beat)
+                    {
+                        stanceChargeLevel++;
+                        Debug.Log("StanceChargeLevel: " + stanceChargeLevel);
+                        beat = true;
+                    }
+                    Jump();
                 }
-                Attack();
-                StartCoroutine(animationLock());
-            }
 
-            if (inputPackage.InputB)
-            {
-                if (beatBox.IsOnBeat(100) && stanceChargeLevel < 4 && !beat)
+                if (inputPackage.TriggerRight != 0)
                 {
-                    stanceChargeLevel++;
-                    Debug.Log("StanceChargeLevel: " + stanceChargeLevel);
-                    beat = true;
+                    if (beatBox.IsOnBeat(100) && stanceChargeLevel < 4 && !beat)
+                    {
+                        stanceChargeLevel++;
+                        Debug.Log("StanceChargeLevel: " + stanceChargeLevel);
+                        beat = true;
+                    }
+                    Attack();
+                    StartCoroutine(animationLock());
                 }
-                var forward = cam.transform.forward;
-                var right = cam.transform.right;
 
-                forward.y = 0f;
-                right.y = 0f;
+                if (inputPackage.InputB)
+                {
+                    if (beatBox.IsOnBeat(100) && stanceChargeLevel < 4 && !beat)
+                    {
+                        stanceChargeLevel++;
+                        Debug.Log("StanceChargeLevel: " + stanceChargeLevel);
+                        beat = true;
+                    }
+                    var forward = cam.transform.forward;
+                    var right = cam.transform.right;
 
-                forward.Normalize();
-                right.Normalize();
-                desiredMoveDirection = forward * InputZ + right * InputX;
-                Evade();
-                StartCoroutine(animationLock());
+                    forward.y = 0f;
+                    right.y = 0f;
+
+                    forward.Normalize();
+                    right.Normalize();
+                    desiredMoveDirection = forward * InputZ + right * InputX;
+                    Evade();
+                    StartCoroutine(animationLock());
+                }
+
+                InputMagnitude();
+
+                isGrounded = controller.isGrounded;
+
+                if (isGrounded)
+                {
+                    verticalVel = 0;
+                }
+                else
+                {
+                    verticalVel -= 2;
+                }
+
+                moveVector = new Vector3(0, verticalVel, 0);
+                controller.Move(moveVector);
             }
-
-            InputMagnitude();
-
-            isGrounded = controller.isGrounded;
-
-            if (isGrounded)
-            {
-                verticalVel = 0;
-            }
-            else
-            {
-                verticalVel -= 2;
-            }
-
-            moveVector = new Vector3(0, verticalVel, 0);
-            controller.Move(moveVector);
         }
     }
 
@@ -290,4 +296,15 @@ public class PlayerMovementProt2 : MonoBehaviour
         animationLocked = false;
         evasion = false;
     }
+
+
+    public void ColliderEnabled()
+    {
+        col.enabled = true;
+    }
+    public void ColliderDisabled()
+    {
+        col.enabled = false;
+    }
+
 }
