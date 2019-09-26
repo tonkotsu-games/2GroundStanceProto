@@ -2522,6 +2522,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a257624a0c85e1f4b9df6bb1d57ef14d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  respawnZone: {fileID: 0}
 --- !u!114 &31706626
 MonoBehaviour:
   m_ObjectHideFlags: 0

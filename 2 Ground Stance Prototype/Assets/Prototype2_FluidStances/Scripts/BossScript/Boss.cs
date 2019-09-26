@@ -17,7 +17,7 @@ public class Boss : MonoBehaviour
     private bool facingPlayer = false;
     public float minAngle = 0.6f;
     [SerializeField]
-    private Collider col;
+    private List<Collider> cols;
 
     // Start is called before the first frame update
     void Start()
@@ -29,7 +29,10 @@ public class Boss : MonoBehaviour
         {
             Debug.LogWarning("Player not tagged!!!");
         }
-        col.enabled = false;
+        foreach (Collider collider in cols)
+        {
+            collider.enabled = false;
+        }
     }
 
     // Update is called once per frame
@@ -87,11 +90,17 @@ public class Boss : MonoBehaviour
 
     public void ColliderEnabled()
     {
-        col.enabled = true;
+        foreach (Collider collider in cols)
+        {
+            collider.enabled = true;
+        }
     }
     public void ColliderDisabled()
     {
-        col.enabled = false;
+        foreach (Collider collider in cols)
+        {
+            collider.enabled = false;
+        }
     }
 
 }
