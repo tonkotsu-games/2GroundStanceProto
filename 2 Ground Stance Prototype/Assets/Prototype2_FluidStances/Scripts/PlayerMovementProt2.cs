@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerMovementProt2 : MonoBehaviour
 {
-
+    VirtuellController input;
     BeatAnalyse beatBox;
     public float InputX;
     public float InputZ;
@@ -45,6 +45,7 @@ public class PlayerMovementProt2 : MonoBehaviour
 
     void Start()
     {
+        input = GetComponent<VirtuellController>();
         beatBox = GameObject.FindWithTag("MusicBox").GetComponent<BeatAnalyse>();
         anim = gameObject.GetComponent<Animator>();
         controller = gameObject.GetComponent<CharacterController>();
@@ -55,6 +56,7 @@ public class PlayerMovementProt2 : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        inputPackage = input.InputPackage;
         if(!beatBox.IsOnBeat(100))
         {
             beat = false;
