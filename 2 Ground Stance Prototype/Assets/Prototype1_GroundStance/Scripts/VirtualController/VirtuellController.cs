@@ -16,7 +16,6 @@ public class VirtuellController : MonoBehaviour
 
     private void Awake()
     {
-        //player = GetComponent<PlayerControll>();
         inputProvider = gameObject.GetComponent<PlayerInput>();
     }
 
