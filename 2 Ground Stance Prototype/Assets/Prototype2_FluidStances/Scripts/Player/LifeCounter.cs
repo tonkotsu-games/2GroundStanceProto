@@ -19,6 +19,10 @@ public class LifeCounter : MonoBehaviour
         hitPoints -= 1;
         if(hitPoints == 0)
         {
+            if(gameObject.tag == "Boss")
+            {
+                Destroy(gameObject);
+            }
             hitPoints = 3;
             if(respawn != null)
             {
