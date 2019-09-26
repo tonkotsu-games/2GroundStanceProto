@@ -26,4 +26,10 @@ public class LifeCounter : MonoBehaviour
             }
         }
     }
+
+    public void FallToDeath()
+    {
+        hitPoints = 3;
+        respawn.RespawnPlayer();
+    }
 }
