@@ -16,7 +16,6 @@ public class VirtuellController : MonoBehaviour
 
     private void Awake()
     {
-        //player = GetComponent<PlayerControll>();
         inputProvider = gameObject.GetComponent<PlayerInput>();
     }
 
@@ -30,6 +29,11 @@ public class VirtuellController : MonoBehaviour
         {
             cam.InputPackage = inputProvider.GetPackage();
         }
+    }
+
+    public void GetPackageForActor()
+    {
+        InputPackage = inputProvider.GetPackage();
     }
 
     private void OnGUI()
