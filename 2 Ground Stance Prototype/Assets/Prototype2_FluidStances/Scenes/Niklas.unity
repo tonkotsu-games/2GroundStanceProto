@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.4465782, g: 0.49641252, b: 0.5748167, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -349,7 +349,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 321198326}
-  m_LocalRotation: {x: 0.32352564, y: -0.085187174, z: 0.029259548, w: 0.94192266}
+  m_LocalRotation: {x: 0.32352564, y: -0.085187264, z: 0.029259576, w: 0.94192266}
   m_LocalPosition: {x: 0.374218, y: 8.6380005, z: -3.9989593}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -498,11 +498,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 5215371982125648254, guid: a92ddd914b72d084f940dffea4c1a414,
-        type: 3}
-      propertyPath: m_Name
-      value: MusicBox
-      objectReference: {fileID: 0}
     - target: {fileID: 5215371982125648251, guid: a92ddd914b72d084f940dffea4c1a414,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -557,6 +552,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5215371982125648254, guid: a92ddd914b72d084f940dffea4c1a414,
+        type: 3}
+      propertyPath: m_Name
+      value: MusicBox
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a92ddd914b72d084f940dffea4c1a414, type: 3}
@@ -920,7 +920,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2138334475814001644}
-  m_LocalRotation: {x: 0.32352555, y: -0.0851872, z: 0.029259592, w: 0.94192266}
+  m_LocalRotation: {x: 0.32352555, y: -0.08518724, z: 0.029259607, w: 0.94192266}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -1369,6 +1369,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: c713953a04aa82c4a9935501ec9811b2, type: 2}
+      objectReference: {fileID: 9100000, guid: adab7398cd5427c4e8024d894a12394f, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3ea237cb4bbd00a489b226edad083555, type: 3}
