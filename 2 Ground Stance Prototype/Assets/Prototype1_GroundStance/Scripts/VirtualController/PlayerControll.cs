@@ -33,6 +33,8 @@ public class PlayerControll : MonoBehaviour
 
     private bool cameraButton = false;
 
+    VirtuellController input;
+
     [SerializeField] GameObject mainCam;
 
     private void Start()
@@ -40,41 +42,45 @@ public class PlayerControll : MonoBehaviour
         playerAnim = gameObject.GetComponent<Animator>();
         rigi = GetComponent<Rigidbody>();
         ChangeState(currentState);
+        input = GetComponent<VirtuellController>();
     }
 
     private void Update()
     {
+        inputPackage = input.InputPackage;
         if (inputPackage != null)
         {
             MovementCalculation();
         }
 
-
-        //This is for changing the Stances
-        if (inputPackage.CameraButton)
+        if (inputPackage != null)
         {
-            if (!cameraButton)
+            //This is for changing the Stances
+            if (inputPackage.CameraButton)
             {
-                if (currentState == StanceState.AgilityStance)
+                if (!cameraButton)
                 {
-                    nextState = StanceState.AggroStance;
+                    if (currentState == StanceState.AgilityStance)
+                    {
+                        nextState = StanceState.AggroStance;
+                    }
+                    else
+                    {
+                        nextState = StanceState.AgilityStance;
+                    }
+                    cameraButton = true;
                 }
                 else
                 {
                     nextState = StanceState.AgilityStance;
                 }
                 cameraButton = true;
+                mainCam.GetComponent<CameraFollow>().ChangeState();
             }
-            else
+            else if (cameraButton)
             {
-                nextState = StanceState.AgilityStance;
+                cameraButton = false;
             }
-            cameraButton = true;
-            mainCam.GetComponent<CameraFollow>().ChangeState();
-        }
-        else if (cameraButton)
-        {
-            cameraButton = false;
         }
     }
 
