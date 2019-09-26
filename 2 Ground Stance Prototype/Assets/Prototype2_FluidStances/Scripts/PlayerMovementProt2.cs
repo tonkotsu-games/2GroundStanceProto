@@ -33,13 +33,21 @@ public class PlayerMovementProt2 : MonoBehaviour
 
     //Stances
     int stance = 0;
-    public enum Stances { Neutral, Jump, Slide, Attack, Parry}
-    public static Stances currentStance = Stances.Neutral;
+    public enum Stances { Neutral, Jump, Slide, Attack, Parry }
+    private Stances currentStance = Stances.Neutral;
 
-    public enum JumpStances { BaseJump, UpJump, AirJuggle }
+    public enum JumpStances { BaseJump, AirJuggle }
+    private JumpStances currentJumpStance = JumpStances.BaseJump;
+
     public enum SlideStances { Slide }
+    private SlideStances currentSlideStance = SlideStances.Slide;
+
     public enum AttackStances { Attack }
-    public enum ParryStances { Parry }
+    private AttackStances currentAttackStance = AttackStances.Attack;
+
+    public enum ParryStances { GroundParry, AirParry }
+    private ParryStances currentParryStance = ParryStances.GroundParry;
+
     //Stances nextStance = Stances.Aggro;
     //public static int stanceChargeLevel = 0;
 
@@ -58,7 +66,7 @@ public class PlayerMovementProt2 : MonoBehaviour
         anim = gameObject.GetComponent<Animator>();
         controller = gameObject.GetComponent<CharacterController>();
         cam = Camera.main;
-        
+
     }
 
     // Update is called once per frame
@@ -81,9 +89,11 @@ public class PlayerMovementProt2 : MonoBehaviour
         //#endregion
 
 
+        //Did you become grounded?
+
         if (!animationLocked)
         {
-            
+
 
             if (inputPackage.InputA)
             {
@@ -93,27 +103,24 @@ public class PlayerMovementProt2 : MonoBehaviour
                 //    Debug.Log("StanceChargeLevel: " + stanceChargeLevel);
                 //    beat = true;
                 //}
-                Jump();
+                HandleJump();
             }
             else if (inputPackage.InputY)
             {
-                Parry();
+                HandleParry();
             }
-            //Attack different button
             else if (inputPackage.InputX)
             {
-                if (beatBox.IsOnBeat(100) && stanceChargeLevel < 4 && !beat)
-                {
-                    stanceChargeLevel++;
-                    Debug.Log("StanceChargeLevel: " + stanceChargeLevel);
-                    beat = true;
-                }
-                Attack();
-                StartCoroutine(animationLock());
+                HandleAttack();
             }
             else if (inputPackage.InputB)
             {
-                Slide();
+                HandleSlide();
+            }
+            else
+            {
+                //check if we should be in neutral --> grounded, anim neutral --> Stance Neutral
+                //--> execute neutral --> Walk Run and so on
             }
 
             InputMagnitude();
@@ -159,7 +166,7 @@ public class PlayerMovementProt2 : MonoBehaviour
 
         desiredMoveDirection = forward * InputZ + right * InputX;
 
-        if(blockRotationPlayer == false)
+        if (blockRotationPlayer == false)
         {
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(desiredMoveDirection), desiredRotationSpeed);
         }
@@ -172,8 +179,8 @@ public class PlayerMovementProt2 : MonoBehaviour
 
     void InputMagnitude()
     {
-       // InputX = Input.GetAxisRaw("Horizontal");
-       // InputZ = Input.GetAxisRaw("Vertical");
+        // InputX = Input.GetAxisRaw("Horizontal");
+        // InputZ = Input.GetAxisRaw("Vertical");
         InputX = inputPackage.MoveHorizontal;
         InputZ = inputPackage.MoveVertical;
 
@@ -187,57 +194,95 @@ public class PlayerMovementProt2 : MonoBehaviour
             anim.SetFloat("InputMagnitude", Speed, 0f, Time.deltaTime);
             PlayerMoveAndRotation();
         }
-        else if ( Speed < allowPlayerRotation)
+        else if (Speed < allowPlayerRotation)
         {
             anim.SetFloat("InputMagnitude", Speed, 0f, Time.deltaTime);
         }
     }
 
-    public void ChangePlayerStance(Stances requestedStance)
-    {
-        if (requestedStance != currentStance)
-        {
 
-            currentStance = requestedStance;
-            stanceChargeLevel = 0;
-            switch (requestedStance)
+    //Refers to Behaviour based on previous stance
+    private void HandleParry()
+    {
+        ParryBehaviour();
+        currentStance = Stances.Parry;
+    }
+    private void HandleAttack()
+    {
+        AttackBehaviour();
+        currentStance = Stances.Attack;
+    }
+    private void HandleSlide()
+    {
+        SlideBehaviour();
+        currentStance = Stances.Slide;
+    }
+
+    private void HandleJump()
+    {
+        if(currentStance == Stances.Neutral)
+        {
+            BaseJumpBehaviour();
+        }
+        else if(currentStance == Stances.Parry)
+        {
+            if (currentParryStance == ParryStances.GroundParry)
             {
-                case Stances.Agility:
-                    blockRotationPlayer = false;
-                    speed = speed * 2;
-                    anim.SetInteger("Stance", 0);
-                    nextStance = Stances.Aggro;
-                    evasionSpeed = 15;
-                    break;
-                case Stances.Aggro:
-                    blockRotationPlayer = true;
-                    speed = speed * 0.5f;
-                    anim.SetInteger("Stance", 1);
-                    nextStance = Stances.Agility;
-                    evasionSpeed = 1;
-                    break;
+                BaseJumpBehaviour();
+            }
+            else
+            {
+                //AirJuggle
             }
         }
-    }
-
-    private void Jump()
-    {
-        switch (currentStance)
+        else if(currentStance == Stances.Jump)
         {
-            case Stances.Agility:
-
-                controller.Move(new Vector3(0, jumpHeight, 0));
-                anim.SetTrigger("jumping");
-               
-                break;
-            case Stances.Aggro:
-                break;
+            //Airjuggle
         }
+        else if (currentStance == Stances.Attack)
+        {
+            BaseJumpBehaviour();
+        }
+        else if (currentStance == Stances.Slide)
+        {
+            BaseJumpBehaviour();
+        }
+
+        currentStance = Stances.Jump;
     }
 
-    void Attack()
+
+    //Parry Behaviour
+    private void ParryBehaviour()
+    {
+
+        
+    }
+
+    //Attack Behaviour
+    private void AttackBehaviour()
     {
         anim.SetTrigger("attacking");
+    }
+
+    //Slide Behaviour
+    private void SlideBehaviour()
+    {
+       
+    }
+
+    //Jump Behaviour
+    private void BaseJumpBehaviour()
+    {
+        controller.Move(new Vector3(0, jumpHeight, 0));
+        anim.SetTrigger("jumping");
+    }
+
+    private void AirJumpBehaviour()
+    {
+        //get controller direction in here
+        controller.Move(new Vector3(0, jumpHeight, 0));
+        anim.SetTrigger("jumping");
     }
 
 
