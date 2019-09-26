@@ -74,6 +74,8 @@ public class PlayerMovementProt2 : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        isGrounded = controller.isGrounded;
+
         inputPackage = input.InputPackage;
         //if(!beatBox.IsOnBeat(100))
         //{
@@ -121,9 +123,12 @@ public class PlayerMovementProt2 : MonoBehaviour
             }
             else
             {
-                //check if we should be in neutral --> grounded, anim neutral --> Stance Neutral
-                //--> execute neutral --> Walk Run and so on
-            }
+
+                if (isGrounded && currentStance != Stances.Neutral)
+                {
+                    currentStance = Stances.Neutral;
+                }
+                InputMagnitude();
 
                 if (isGrounded)
                 {
@@ -136,8 +141,24 @@ public class PlayerMovementProt2 : MonoBehaviour
 
                 moveVector = new Vector3(0, verticalVel, 0);
                 controller.Move(moveVector);
+
+                //check if we should be in neutral --> grounded, anim neutral --> Stance Neutral
+                //--> execute neutral --> Walk Run and so on
             }
+
+            // if (isGrounded)
+            //     {
+            //         verticalVel = 0;
+            //     }
+            //     else
+            //     {
+            //         verticalVel -= 2;
+            //     }
+            //
+            //     moveVector = new Vector3(0, verticalVel, 0);
+            //     controller.Move(moveVector);
         }
+    }
 
     private void FixedUpdate()
     {
