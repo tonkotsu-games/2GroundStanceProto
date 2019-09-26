@@ -74,6 +74,11 @@ public class PlayerMovementProt2 : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        anim.ResetTrigger("jumping");
+        anim.ResetTrigger("sliding");
+        anim.ResetTrigger("parrying");
+        anim.ResetTrigger("attacking");
+
         isGrounded = controller.isGrounded;
 
         inputPackage = input.InputPackage;
@@ -251,12 +256,12 @@ public class PlayerMovementProt2 : MonoBehaviour
             }
             else
             {
-                //AirJuggle
+                AirJumpBehaviour();
             }
         }
         else if(currentStance == Stances.Jump)
         {
-            //Airjuggle
+            AirJumpBehaviour();
         }
         else if (currentStance == Stances.Attack)
         {
@@ -274,8 +279,7 @@ public class PlayerMovementProt2 : MonoBehaviour
     //Parry Behaviour
     private void ParryBehaviour()
     {
-
-        
+        anim.SetTrigger("parrying");
     }
 
     //Attack Behaviour
@@ -287,7 +291,7 @@ public class PlayerMovementProt2 : MonoBehaviour
     //Slide Behaviour
     private void SlideBehaviour()
     {
-       
+        anim.SetTrigger("sliding");
     }
 
     //Jump Behaviour
