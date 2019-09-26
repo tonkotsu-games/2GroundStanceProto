@@ -79,7 +79,7 @@ public class PlayerMovementProt2 : MonoBehaviour
     {
         isGrounded = controller.isGrounded;
 
-        inputPackage = input.InputPackage;
+        inputPackage = input.GetPackageForActor();
         //if(!beatBox.IsOnBeat(100))
         //{
         //    beat = false;
