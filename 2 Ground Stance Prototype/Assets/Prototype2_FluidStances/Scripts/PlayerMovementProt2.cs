@@ -31,17 +31,25 @@ public class PlayerMovementProt2 : MonoBehaviour
     private InputPackage inputPackage;
     public InputPackage InputPackage { get => inputPackage; set => inputPackage = value; }
 
+    //Stances
     int stance = 0;
-    public enum Stances { Agility,Aggro}
-    public static Stances currentStance = Stances.Agility;
-    Stances nextStance = Stances.Aggro;
-    public static int stanceChargeLevel = 0;
+    public enum Stances { Neutral, Jump, Slide, Attack, Parry}
+    public static Stances currentStance = Stances.Neutral;
+
+    public enum JumpStances { BaseJump, UpJump, AirJuggle }
+    public enum SlideStances { Slide }
+    public enum AttackStances { Attack }
+    public enum ParryStances { Parry }
+    //Stances nextStance = Stances.Aggro;
+    //public static int stanceChargeLevel = 0;
 
     private bool cameraButton = false;
 
     private bool animationLocked = false;
 
     [SerializeField] GameObject enemy;
+
+
 
     void Start()
     {
@@ -57,52 +65,42 @@ public class PlayerMovementProt2 : MonoBehaviour
     void Update()
     {
         inputPackage = input.InputPackage;
-        if(!beatBox.IsOnBeat(100))
-        {
-            beat = false;
-        }
+        //if(!beatBox.IsOnBeat(100))
+        //{
+        //    beat = false;
+        //}
 
-        #region TriggerResets
+        //#region TriggerResets
+        //
+        //anim.ResetTrigger("jumping");
+        //anim.ResetTrigger("attacking");
+        //anim.ResetTrigger("evasion");
+        //anim.ResetTrigger("evasionRight");
+        //anim.ResetTrigger("evasionLeft");
+        //
+        //#endregion
 
-        anim.ResetTrigger("jumping");
-        anim.ResetTrigger("attacking");
-        anim.ResetTrigger("evasion");
-        anim.ResetTrigger("evasionRight");
-        anim.ResetTrigger("evasionLeft");
-
-        #endregion
-        if (evasion)
-        {
-
-            
-            if (!blockRotationPlayer)
-            {
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(desiredMoveDirection), desiredRotationSpeed);
-            }
-            controller.Move(desiredMoveDirection * Time.deltaTime * evasionSpeed);
-            StartCoroutine(animationLock());
-            
-        }
 
         if (!animationLocked)
         {
-            if (inputPackage.CameraButton)
-            {
-                ChangePlayerStance(nextStance);
-            }
+            
 
             if (inputPackage.InputA)
             {
-                if (beatBox.IsOnBeat(100) && stanceChargeLevel < 4 && !beat)
-                {
-                    stanceChargeLevel++;
-                    Debug.Log("StanceChargeLevel: " + stanceChargeLevel);
-                    beat = true;
-                }
+                //if (beatBox.IsOnBeat(100) && stanceChargeLevel < 4 && !beat)
+                //{
+                //    stanceChargeLevel++;
+                //    Debug.Log("StanceChargeLevel: " + stanceChargeLevel);
+                //    beat = true;
+                //}
                 Jump();
             }
-
-            if (inputPackage.TriggerRight != 0)
+            else if (inputPackage.InputY)
+            {
+                Parry();
+            }
+            //Attack different button
+            else if (inputPackage.InputX)
             {
                 if (beatBox.IsOnBeat(100) && stanceChargeLevel < 4 && !beat)
                 {
@@ -113,26 +111,9 @@ public class PlayerMovementProt2 : MonoBehaviour
                 Attack();
                 StartCoroutine(animationLock());
             }
-
-            if (inputPackage.InputB)
+            else if (inputPackage.InputB)
             {
-                if (beatBox.IsOnBeat(100) && stanceChargeLevel < 4 && !beat)
-                {
-                    stanceChargeLevel++;
-                    Debug.Log("StanceChargeLevel: " + stanceChargeLevel);
-                    beat = true;
-                }
-                var forward = cam.transform.forward;
-                var right = cam.transform.right;
-
-                forward.y = 0f;
-                right.y = 0f;
-
-                forward.Normalize();
-                right.Normalize();
-                desiredMoveDirection = forward * InputZ + right * InputX;
-                Evade();
-                StartCoroutine(animationLock());
+                Slide();
             }
 
             InputMagnitude();
@@ -259,29 +240,8 @@ public class PlayerMovementProt2 : MonoBehaviour
         anim.SetTrigger("attacking");
     }
 
-    void Evade()
-    {
-        if (currentStance == Stances.Aggro)
-        {
-            if(inputPackage.MoveHorizontal <= -0.5f)
-            {
-                anim.SetTrigger("evasionLeft");
-            }
-            else if(inputPackage.MoveHorizontal >= 0.5f)
-            {
-                anim.SetTrigger("evasionRight");
-            }
-            else
-            {
-                anim.SetTrigger("evasionLeft");
-            }
-        }
-        else
-        {
-            anim.SetTrigger("evasion");
-        }
-        evasion = true;
-    }
+
+
 
     IEnumerator animationLock()
     {
