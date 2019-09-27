@@ -10,6 +10,10 @@ public class Boss : MonoBehaviour
     private float aggroRange = 1;
     [SerializeField] [Tooltip("The layer assigned to the player")]
     private int layerMaskPlayer = 9;
+    [SerializeField]
+    private GameObject projectilePrefab;
+    [SerializeField]
+    private Transform projectileSpawner;
     private GameObject player;
     private Animator bossAnim;
     private Vector3 desiredLookDirection;
@@ -101,6 +105,15 @@ public class Boss : MonoBehaviour
         {
             collider.enabled = false;
         }
+    }
+
+    public void SpawnProjectile()
+    {
+        var p = Instantiate(projectilePrefab, projectileSpawner.position, Quaternion.identity);
+        ProjectileController pScript = p.GetComponent<ProjectileController>();
+        pScript.direction = desiredLookDirection;
+        pScript.shoot = true;
+
     }
 
 }
