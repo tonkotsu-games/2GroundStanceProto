@@ -12,6 +12,7 @@ public class PlayerMovementProt2 : MonoBehaviour
     public Vector3 desiredMoveDirection;
     public bool blockRotationPlayer;
 
+    public float gravity;
     public float jumpHeight;
     public float desiredRotationSpeed;
     public Animator anim;
@@ -148,7 +149,7 @@ public class PlayerMovementProt2 : MonoBehaviour
                 }
                 else
                 {
-                    verticalVel = -0.98f;
+                    verticalVel = -gravity;
                 }
 
                 moveVector = new Vector3(0, verticalVel, 0);
