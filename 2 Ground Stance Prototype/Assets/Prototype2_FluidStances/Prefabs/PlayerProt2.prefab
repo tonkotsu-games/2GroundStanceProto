@@ -2486,6 +2486,7 @@ MonoBehaviour:
   InputZ: 0
   desiredMoveDirection: {x: 0, y: 0, z: 0}
   blockRotationPlayer: 0
+  gravity: 0.2
   jumpHeight: 1
   desiredRotationSpeed: 1
   anim: {fileID: 0}
