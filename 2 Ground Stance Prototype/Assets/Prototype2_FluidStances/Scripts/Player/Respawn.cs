@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class Respawn : MonoBehaviour
 {
+    [SerializeField] Transform respawnZone;
+
     public void RespawnPlayer()
     {
-        transform.position = new Vector3(0, 0, 7.5f);
+        transform.position = respawnZone.position;
     }
 }
