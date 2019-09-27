@@ -12,7 +12,8 @@ public class PlayerMovementProt2 : MonoBehaviour
     public Vector3 desiredMoveDirection;
     public bool blockRotationPlayer;
 
-    public float gravity;
+    private float gravity;
+    public float baseGravity;
     public float baseJumpHeight;
     public float airJumpHeight;
     public float airJumpDistance;
@@ -87,6 +88,7 @@ public class PlayerMovementProt2 : MonoBehaviour
         anim = gameObject.GetComponent<Animator>();
         controller = gameObject.GetComponent<CharacterController>();
         cam = Camera.main;
+        gravity = baseGravity;
     }
     void Start()
     {
@@ -139,17 +141,16 @@ public class PlayerMovementProt2 : MonoBehaviour
         else
         {
 
-            if (isGrounded)
-            {
-                if(currentStance != Stances.Neutral) { 
-                currentStance = Stances.Neutral;
-                    }
-            }
+           if (isGrounded)
+           {
+               if(anim.GetNextAnimatorStateInfo(0).IsName("Neutral"))
+                { 
+               currentStance = Stances.Neutral;
+                 }
+           }
 
-            verticalVel = -gravity;
-
-            moveVector = new Vector3(0, verticalVel, 0);
-            controller.Move(moveVector);
+           // moveVector = new Vector3(0, verticalVel, 0);
+           // controller.Move(moveVector);
             if (currentStance == Stances.Neutral)
             {
                 InputMagnitude();
@@ -157,19 +158,21 @@ public class PlayerMovementProt2 : MonoBehaviour
             //check if we should be in neutral --> grounded, anim neutral --> Stance Neutral
             //--> execute neutral --> Walk Run and so on
         }
-        
 
-        // if (isGrounded)
-        //     {
-        //         verticalVel = 0;
-        //     }
-        //     else
-        //     {
-        //         verticalVel -= 2;
-        //     }
         //
-        //     moveVector = new Vector3(0, verticalVel, 0);
-        //     controller.Move(moveVector);
+        //if (isGrounded)
+        //    {
+        //        verticalVel = 0;
+        //    }
+        //    else
+        //    {
+        //        verticalVel -= 2;
+        //    }
+
+            verticalVel = -gravity;
+            moveVector = new Vector3(0, verticalVel, 0);
+            controller.Move(moveVector);
+
     }
 
 
@@ -251,8 +254,19 @@ public class PlayerMovementProt2 : MonoBehaviour
     //Refers to Behaviour based on previous stance
     private void HandleParry()
     {
-        ParryBehaviour();
-        currentStance = Stances.Parry;
+        CalculateMovementDirection();
+        transform.rotation = Quaternion.LookRotation(desiredMoveDirection);
+
+        if (currentStance == Stances.Jump)
+        {
+            AirParryBehaviour();
+            currentStance = Stances.Parry;
+        }
+        else
+        {
+            ParryBehaviour();
+            currentStance = Stances.Parry;
+        }
     }
     private void HandleAttack()
     {
@@ -303,6 +317,17 @@ public class PlayerMovementProt2 : MonoBehaviour
     private void ParryBehaviour()
     {
         anim.SetTrigger("parrying");
+        EnableAnimationLock(2, 0.0f);
+    }
+
+    //AirParry Behaviour
+
+    private void AirParryBehaviour()
+    {
+        anim.SetTrigger("parrying");
+        EnableAnimationLock(2, 0.0f);
+        //Disable Gravity
+        gravity = 0;
     }
 
     //Attack Behaviour
@@ -380,10 +405,17 @@ public class PlayerMovementProt2 : MonoBehaviour
         animationLocked = false;
     }
 
+    public void EnableGravity()
+    {
+        gravity = baseGravity;
+        currentStance = Stances.Neutral;
+    }
+
 
     private void OnGUI()
     {
         GUILayout.Toggle(animationLocked,"AnimationLocked: ");
         GUILayout.Toggle(jumping, "jumping");
+        GUILayout.Box("Current Stance: " + currentStance);
     }
 }
