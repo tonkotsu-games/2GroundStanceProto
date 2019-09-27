@@ -542,10 +542,10 @@ GameObject:
   - component: {fileID: 4969699025638828562}
   - component: {fileID: 4969699025631069304}
   - component: {fileID: 4969699025174163492}
-  - component: {fileID: 4969699025174163499}
+  - component: {fileID: 1056401430137436822}
   - component: {fileID: 4969699025174163496}
   - component: {fileID: 4969699025174163497}
-  - component: {fileID: 2626644185545643469}
+  - component: {fileID: 6955879835634583143}
   m_Layer: 0
   m_Name: xbot
   m_TagString: Untagged
@@ -580,7 +580,7 @@ Animator:
   m_GameObject: {fileID: 4969699025638471218}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: f6e586c0af44ec643948dbb07949484c, type: 3}
-  m_Controller: {fileID: 9100000, guid: 1b23b6ce8e7e33041af5a44eef57ece3, type: 2}
+  m_Controller: {fileID: 9100000, guid: c713953a04aa82c4a9935501ec9811b2, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -605,7 +605,7 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 112
   m_CollisionDetection: 1
---- !u!114 &4969699025174163499
+--- !u!114 &1056401430137436822
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -614,13 +614,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 4969699025638471218}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 37909182302cf1249a78a09dac30d7eb, type: 3}
+  m_Script: {fileID: 11500000, guid: 53139b5503d320141b3e10fe5d94db1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementSpeed: 10
-  jumpheight: 0
-  rotationSpeed: 0.1
-  mainCam: {fileID: 0}
+  InputX: 0
+  InputZ: 0
+  desiredMoveDirection: {x: 0, y: 0, z: 0}
+  blockRotationPlayer: 0
+  jumpHeight: 1
+  desiredRotationSpeed: 1
+  anim: {fileID: 0}
+  speed: 10
+  allowPlayerRotation: 0
+  cam: {fileID: 0}
+  controller: {fileID: 0}
+  isGrounded: 0
+  verticalVel: 0
+  evasionSpeed: 0
+  enemy: {fileID: 0}
 --- !u!114 &4969699025174163496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -662,8 +673,8 @@ MonoBehaviour:
   - {fileID: 2800000, guid: 7cf733a8ca9e97642a2d85614e27b1c9, type: 3}
   - {fileID: 2800000, guid: fcef742d03dca764285a85ca415bb978, type: 3}
   - {fileID: 2800000, guid: 7f147f064181bca45beae58e203a198f, type: 3}
---- !u!136 &2626644185545643469
-CapsuleCollider:
+--- !u!143 &6955879835634583143
+CharacterController:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -672,10 +683,14 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
+  serializedVersion: 2
+  m_Height: 2.04
   m_Radius: 0.5
-  m_Height: 1.8587227
-  m_Direction: 1
-  m_Center: {x: 0, y: 0.8932009, z: 0}
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0.92, z: 0}
 --- !u!1 &4969699025638471224
 GameObject:
   m_ObjectHideFlags: 0
