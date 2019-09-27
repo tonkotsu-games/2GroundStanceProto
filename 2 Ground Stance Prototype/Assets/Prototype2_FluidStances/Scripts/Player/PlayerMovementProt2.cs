@@ -61,13 +61,16 @@ public class PlayerMovementProt2 : MonoBehaviour
     [SerializeField]
     private GameObject enemy;
 
-    void Start()
+    private void Awake()
     {
         input = GetComponent<VirtuellController>();
         beatBox = GameObject.FindWithTag("MusicBox").GetComponent<BeatAnalyse>();
         anim = gameObject.GetComponent<Animator>();
         controller = gameObject.GetComponent<CharacterController>();
         cam = Camera.main;
+    }
+    void Start()
+    {
         col.enabled = false;
     }
 
@@ -82,6 +85,10 @@ public class PlayerMovementProt2 : MonoBehaviour
         isGrounded = controller.isGrounded;
 
         inputPackage = input.InputPackage;
+        if (inputPackage == null)
+        {
+            return;
+        }
         //if(!beatBox.IsOnBeat(100))
         //{
         //    beat = false;
