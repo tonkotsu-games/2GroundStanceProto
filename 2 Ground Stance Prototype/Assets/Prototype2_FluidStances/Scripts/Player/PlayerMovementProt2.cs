@@ -12,7 +12,12 @@ public class PlayerMovementProt2 : MonoBehaviour
     public Vector3 desiredMoveDirection;
     public bool blockRotationPlayer;
 
-    public float jumpHeight;
+    private float gravity;
+    public float baseGravity;
+    public float baseJumpHeight;
+    public float airJumpHeight;
+    public float airJumpDistance;
+    public float jumpDistance;
     public float desiredRotationSpeed;
     public Animator anim;
     public float speed;
@@ -25,11 +30,26 @@ public class PlayerMovementProt2 : MonoBehaviour
     private Vector3 moveVector;
     private Vector3 evasionHeading;
     private Vector3 positionAfterEvade;
+    private Vector3 jumpVector;
     public float evasionSpeed;
     private bool evasion;
     private bool beat;
+    private bool jumping;
+    [SerializeField]
+    private bool inputDone;
     private InputPackage inputPackage;
     public InputPackage InputPackage { get => inputPackage; set => inputPackage = value; }
+
+    #region buttonDown Bools
+    private bool inputAReady;
+    private bool inputBReady;
+    private bool inputYReady;
+    private bool inputXReady;
+    #endregion
+
+    [SerializeField]
+    AnimationClip[] animationClips;
+
 
     //Stances
     int stance = 0;
@@ -61,19 +81,24 @@ public class PlayerMovementProt2 : MonoBehaviour
     [SerializeField]
     private GameObject enemy;
 
-    void Start()
+    private void Awake()
     {
         input = GetComponent<VirtuellController>();
         beatBox = GameObject.FindWithTag("MusicBox").GetComponent<BeatAnalyse>();
         anim = gameObject.GetComponent<Animator>();
         controller = gameObject.GetComponent<CharacterController>();
         cam = Camera.main;
+        gravity = baseGravity;
+    }
+    void Start()
+    {
         col.enabled = false;
     }
 
     // Update is called once per frame
     void Update()
     {
+        anim.SetBool("isGrounded", controller.isGrounded);
         anim.ResetTrigger("jumping");
         anim.ResetTrigger("sliding");
         anim.ResetTrigger("parrying");
@@ -82,100 +107,111 @@ public class PlayerMovementProt2 : MonoBehaviour
         isGrounded = controller.isGrounded;
 
         inputPackage = input.InputPackage;
-        //if(!beatBox.IsOnBeat(100))
-        //{
-        //    beat = false;
-        //}
-
-        //#region TriggerResets
-        //
-        //anim.ResetTrigger("jumping");
-        //anim.ResetTrigger("attacking");
-        //anim.ResetTrigger("evasion");
-        //anim.ResetTrigger("evasionRight");
-        //anim.ResetTrigger("evasionLeft");
-        //
-        //#endregion
-
+        if (inputPackage == null)
+        {
+            return;
+        }
 
         //Did you become grounded?
 
-        if (!animationLocked)
+        if (Input.GetButtonDown("A"))
+        {
+           //if (inputAReady)
+           //{
+                if (!animationLocked)
+                {
+                    HandleJump();
+                    inputAReady = false;
+                }
+            //}
+        }
+
+        else if (inputPackage.InputY)
+        {
+            HandleParry();
+        }
+        else if (inputPackage.InputX)
+        {
+            HandleAttack();
+        }
+        else if (inputPackage.InputB)
+        {
+            HandleSlide();
+        }
+        else
         {
 
+           if (isGrounded)
+           {
+               if(anim.GetNextAnimatorStateInfo(0).IsName("Neutral"))
+                { 
+               currentStance = Stances.Neutral;
+                 }
+           }
 
-            if (inputPackage.InputA)
+           // moveVector = new Vector3(0, verticalVel, 0);
+           // controller.Move(moveVector);
+            if (currentStance == Stances.Neutral)
             {
-                //if (beatBox.IsOnBeat(100) && stanceChargeLevel < 4 && !beat)
-                //{
-                //    stanceChargeLevel++;
-                //    Debug.Log("StanceChargeLevel: " + stanceChargeLevel);
-                //    beat = true;
-                //}
-                HandleJump();
-            }
-            else if (inputPackage.InputY)
-            {
-                HandleParry();
-            }
-            else if (inputPackage.InputX)
-            {
-                HandleAttack();
-            }
-            else if (inputPackage.InputB)
-            {
-                HandleSlide();
-            }
-            else
-            {
-
-                if (isGrounded && currentStance != Stances.Neutral)
-                {
-                    currentStance = Stances.Neutral;
-                }
                 InputMagnitude();
-
-                if (isGrounded)
-                {
-                    verticalVel = 0;
-                }
-                else
-                {
-                    verticalVel = -0.98f;
-                }
-
-                moveVector = new Vector3(0, verticalVel, 0);
-                controller.Move(moveVector);
-
-                //check if we should be in neutral --> grounded, anim neutral --> Stance Neutral
-                //--> execute neutral --> Walk Run and so on
             }
-
-            // if (isGrounded)
-            //     {
-            //         verticalVel = 0;
-            //     }
-            //     else
-            //     {
-            //         verticalVel -= 2;
-            //     }
-            //
-            //     moveVector = new Vector3(0, verticalVel, 0);
-            //     controller.Move(moveVector);
+            //check if we should be in neutral --> grounded, anim neutral --> Stance Neutral
+            //--> execute neutral --> Walk Run and so on
         }
+
+        //
+        //if (isGrounded)
+        //    {
+        //        verticalVel = 0;
+        //    }
+        //    else
+        //    {
+        //        verticalVel -= 2;
+        //    }
+
+            verticalVel = -gravity;
+            moveVector = new Vector3(0, verticalVel, 0);
+            controller.Move(moveVector);
+
     }
+
 
     private void FixedUpdate()
     {
-        cameraButton = false;
+
+        if (jumping)
+        {
+            if (animationLocked)
+            {
+                controller.Move(jumpVector);
+            }
+            else
+            {
+                jumping = false;
+            }
+        }
     }
 
     private void PlayerMoveAndRotation()
     {
-
         //InputX = Input.GetAxisRaw("Horizontal");
         //InputZ = Input.GetAxisRaw("Vertical");
 
+        CalculateMovementDirection();
+
+        if (blockRotationPlayer == false)
+        {
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(desiredMoveDirection), desiredRotationSpeed);
+        }
+        else
+        {
+            transform.LookAt(enemy.transform);
+        }
+        controller.Move(desiredMoveDirection * Time.deltaTime * speed);
+    }
+
+    private void CalculateMovementDirection()
+    {
         InputX = inputPackage.MoveHorizontal;
         InputZ = inputPackage.MoveVertical;
 
@@ -189,16 +225,6 @@ public class PlayerMovementProt2 : MonoBehaviour
         right.Normalize();
 
         desiredMoveDirection = forward * InputZ + right * InputX;
-
-        if (blockRotationPlayer == false)
-        {
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(desiredMoveDirection), desiredRotationSpeed);
-        }
-        else
-        {
-            transform.LookAt(enemy.transform);
-        }
-        controller.Move(desiredMoveDirection * Time.deltaTime * speed);
     }
 
     void InputMagnitude()
@@ -228,8 +254,19 @@ public class PlayerMovementProt2 : MonoBehaviour
     //Refers to Behaviour based on previous stance
     private void HandleParry()
     {
-        ParryBehaviour();
-        currentStance = Stances.Parry;
+        CalculateMovementDirection();
+        transform.rotation = Quaternion.LookRotation(desiredMoveDirection);
+
+        if (currentStance == Stances.Jump)
+        {
+            AirParryBehaviour();
+            currentStance = Stances.Parry;
+        }
+        else
+        {
+            ParryBehaviour();
+            currentStance = Stances.Parry;
+        }
     }
     private void HandleAttack()
     {
@@ -280,6 +317,17 @@ public class PlayerMovementProt2 : MonoBehaviour
     private void ParryBehaviour()
     {
         anim.SetTrigger("parrying");
+        EnableAnimationLock(2, 0.0f);
+    }
+
+    //AirParry Behaviour
+
+    private void AirParryBehaviour()
+    {
+        anim.SetTrigger("parrying");
+        EnableAnimationLock(2, 0.0f);
+        //Disable Gravity
+        gravity = 0;
     }
 
     //Attack Behaviour
@@ -297,26 +345,42 @@ public class PlayerMovementProt2 : MonoBehaviour
     //Jump Behaviour
     private void BaseJumpBehaviour()
     {
-        controller.Move(new Vector3(0, jumpHeight, 0));
         anim.SetTrigger("jumping");
+
+        //controller.Move(new Vector3(0, baseJumpHeight, 0))
+        CalculateMovementDirection();
+        transform.rotation = Quaternion.LookRotation(desiredMoveDirection);
+        jumpVector = desiredMoveDirection;
+        jumpVector = jumpVector * jumpDistance;
+        jumpVector.y = baseJumpHeight;
+        Debug.Log("JumpVector: " + jumpVector);
+        EnableAnimationLock(0,0.0f);
+        jumping = true;
     }
 
     private void AirJumpBehaviour()
     {
-        //get controller direction in here
-        controller.Move(new Vector3(0, jumpHeight, 0));
+
+
         anim.SetTrigger("jumping");
+        //get controller direction in here
+        CalculateMovementDirection();
+        transform.rotation = Quaternion.LookRotation(desiredMoveDirection);
+        jumpVector = desiredMoveDirection;
+        jumpVector = jumpVector * airJumpDistance;
+        jumpVector.y = airJumpHeight;
+        EnableAnimationLock(0,0.1f);
+        jumping = true;
     }
 
 
 
 
-    IEnumerator animationLock()
+    IEnumerator animationLock(float clipLength , float window)
     {
         animationLocked = true;
-        yield return new WaitForSeconds(anim.GetCurrentAnimatorStateInfo(0).length);
+        yield return new WaitForSeconds(clipLength - window);
         animationLocked = false;
-        evasion = false;
     }
 
 
@@ -329,4 +393,29 @@ public class PlayerMovementProt2 : MonoBehaviour
         col.enabled = false;
     }
 
+    public void EnableAnimationLock(int clipIndex ,float window)
+    {
+        StartCoroutine(animationLock(animationClips[clipIndex].length, window));
+    }
+
+    // called from Animation Events!
+    public void DisableAnimationLock()
+    {
+        Debug.Log("unlock Animation");
+        animationLocked = false;
+    }
+
+    public void EnableGravity()
+    {
+        gravity = baseGravity;
+        currentStance = Stances.Neutral;
+    }
+
+
+    private void OnGUI()
+    {
+        GUILayout.Toggle(animationLocked,"AnimationLocked: ");
+        GUILayout.Toggle(jumping, "jumping");
+        GUILayout.Box("Current Stance: " + currentStance);
+    }
 }
