@@ -25,6 +25,9 @@ public class PlayerProt3Movement : MonoBehaviour
     private float baseSpeed = 5f;
 
     [SerializeField]
+    private float breakForce;
+
+    [SerializeField]
     private float speedPerPush = 5f;
 
     [SerializeField]
@@ -37,7 +40,7 @@ public class PlayerProt3Movement : MonoBehaviour
     private float height;
 
     [SerializeField]
-    private float AdditionalGravity = 0.5f; 
+    private float AdditionalGravity = 0.5f;
 
     private bool reverse = false;
 
@@ -62,7 +65,12 @@ public class PlayerProt3Movement : MonoBehaviour
     [HideInInspector] public Quaternion InputRotation;
     [HideInInspector] public Quaternion ComputedRotation;
 
-    public enum PlayerStates { driving,shooting}
+    GameObject grindedObject;
+
+    Vector3 grindDirection;
+    float grindMagnitude;
+
+    public enum PlayerStates { driving, shooting , grinding}
     PlayerStates currentPlayerState = PlayerStates.driving;
 
     // Start is called before the first frame update
@@ -73,44 +81,43 @@ public class PlayerProt3Movement : MonoBehaviour
         anim = gameObject.GetComponent<Animator>();
         rb = gameObject.GetComponent<Rigidbody>();
         source = gameObject.GetComponent<AudioSource>();
-       //controller = gameObject.GetComponent<CharacterController>();
+        //controller = gameObject.GetComponent<CharacterController>();
         cam = Camera.main;
     }
 
     // Update is called once per frame
     void Update()
-    { 
+    {
         #region ResettingTriggers
         anim.ResetTrigger("skateRight");
         anim.ResetTrigger("skateLeft");
         anim.ResetTrigger("shootRight");
         anim.ResetTrigger("shootLeft");
-        anim.ResetTrigger("stateSwap");
         #endregion
 
         float InputX = Input.GetAxis("Horizontal");
         float InputZ = Input.GetAxis("Vertical");
 
         CheckPhysics();
-        Vector2 direction = new Vector2 (InputX,InputZ);
-        SkaterMove(direction);
+        CheckForGrinding();
+        Vector2 direction = new Vector2(InputX, InputZ);
+       // SkaterMove(direction);
         if (Input.GetButtonDown("CameraButton"))
         {
-         
-            if(currentPlayerState == PlayerStates.driving)
+
+            if (currentPlayerState == PlayerStates.driving)
             {
-                anim.SetInteger("state", 1);
                 ChangePlayerState(PlayerStates.shooting);
             }
-            else if(currentPlayerState == PlayerStates.shooting)
+            else if (currentPlayerState == PlayerStates.shooting)
             {
-                anim.SetInteger("state", 0);
                 ChangePlayerState(PlayerStates.driving);
             }
         }
 
         if (currentPlayerState == PlayerStates.driving)
         {
+            SkaterMove(direction);
             if (Input.GetAxisRaw("TriggerRight") != 0)
             {
                 Skate("Right", direction);
@@ -119,7 +126,27 @@ public class PlayerProt3Movement : MonoBehaviour
             {
                 Skate("Left", direction);
             }
-            
+
+            else if (Input.GetButton("B"))
+            {
+                rb.velocity = rb.velocity * breakForce;
+            }
+
+            if (Input.GetButtonDown("A"))
+            {
+                if (!aerial)
+                {
+                    rb.AddForce(direction * Vector3.up * jumpForce);
+                }
+            }
+
+
+        }
+
+        else if(currentPlayerState == PlayerStates.grinding)
+        {
+            transform.LookAt(boss.transform);
+
             if (Input.GetButtonDown("A"))
             {
                 if (!aerial)
@@ -127,9 +154,25 @@ public class PlayerProt3Movement : MonoBehaviour
                     rb.AddForce(Vector3.up * jumpForce);
                 }
             }
+
+            if (Input.GetAxisRaw("TriggerRight") != 0)
+            {
+                Shoot("Right");
+            }
+            else if (Input.GetAxisRaw("TriggerLeft") != 0)
+            {
+                Shoot("Left");
+            }
+
+            if(rb.velocity.magnitude < 0.1f)
+            {
+                rb.AddForce(Vector3.forward);
+            }
+
+
         }
 
-        else if(currentPlayerState == PlayerStates.shooting)
+        else if (currentPlayerState == PlayerStates.shooting)
         {
             if (Input.GetAxisRaw("TriggerRight") != 0)
             {
@@ -143,7 +186,7 @@ public class PlayerProt3Movement : MonoBehaviour
     }
 
 
-    private void Skate(string direction,Vector2 moveDirection)
+    private void Skate(string direction, Vector2 moveDirection)
     {
         if (!aerial)
         {
@@ -223,16 +266,17 @@ public class PlayerProt3Movement : MonoBehaviour
             {
                 if (rb.velocity.magnitude < maxSpeed)
                 {
-                    Vector3 Direction = InputRotation * transform.forward * baseSpeed;
-                    rb.AddForce(Direction);
+                   Vector3 Direction = InputRotation * transform.forward * baseSpeed;
+                   rb.AddForce(Direction);
                 }
             }
         }
-          
-        
 
-        ComputedRotation = PhysicsRotation * VelocityRotation * transform.rotation;
-        transform.rotation = Quaternion.Lerp(transform.rotation, ComputedRotation, rotationSpeed * Time.deltaTime);
+
+
+        ComputedRotation =  PhysicsRotation * VelocityRotation * transform.rotation;
+        //ComputedRotation = VelocityRotation * transform.rotation;
+        //transform.rotation = Quaternion.Lerp(transform.rotation, ComputedRotation, rotationSpeed * Time.deltaTime);    
     }
 
     Vector3 CamToPlayer(Vector2 d)
@@ -251,7 +295,6 @@ public class PlayerProt3Movement : MonoBehaviour
         Vector3 target_vec = Vector3.up;
         Ray ray = new Ray(transform.position, Vector3.down);
         RaycastHit hit;
-
         if (Physics.Raycast(ray, out hit, 1.05f * height))
         {
             target_vec = hit.normal;
@@ -268,45 +311,82 @@ public class PlayerProt3Movement : MonoBehaviour
             vel.y = 0;
             Vector3 dir = transform.forward;
             dir.y = 0;
-            Quaternion vel_rot = Quaternion.FromToRotation(dir.normalized * 0.05f, vel.normalized);
+            Quaternion vel_rot = Quaternion.FromToRotation(dir.normalized , vel.normalized);
             return vel_rot;
         }
         else
             return Quaternion.identity;
     }
 
+    private void CheckForGrinding()
+    {
+        Ray ray = new Ray(transform.position, -transform.up);
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit, 1f, 1 << 10))
+        {
+            ChangePlayerState(PlayerStates.grinding);
+            grindedObject = hit.collider.gameObject;
+            grindDirection = Quaternion.AngleAxis(90, Vector3.right) * hit.normal;
+        }
+
+        else
+        {
+            if (currentPlayerState == PlayerStates.grinding)
+            {
+                ChangePlayerState(PlayerStates.driving);
+            }
+        }
+    }
+
     public void ChangePlayerState(PlayerStates requestedState)
     {
-        if(requestedState!= currentPlayerState)
+        if (requestedState != currentPlayerState)
         {
             Debug.Log("Changing from State: " + currentPlayerState + " to State:  " + requestedState);
 
             currentPlayerState = requestedState;
 
-            if(requestedState == PlayerStates.driving)
+            if (requestedState == PlayerStates.driving)
             {
-
+                Time.timeScale = 1;
+                anim.SetInteger("state", 0);
             }
-            else if(requestedState == PlayerStates.shooting)
+            else if (requestedState == PlayerStates.shooting)
             {
-
+                anim.SetInteger("state", 1);
                 rb.velocity = Vector3.zero;
                 transform.LookAt(boss.transform);
             }
+            else if(requestedState == PlayerStates.grinding)
+            {
+                grindMagnitude = rb.velocity.magnitude;
+                rb.AddForce(grindDirection.normalized * grindMagnitude);
+
+                Time.timeScale = 0.3f;
+                anim.SetInteger("state", 2);
+                transform.LookAt(boss.transform);
+            }
+
+            
         }
     }
-    
+
     private void SpawnBullet(string side)
-    { //
-      // if (side == "Right")
-      // {
-      //     Instantiate(bulletPrefab, bulletSpawnRight.position ,Quaternion.identity);
-      // }
-      //
-      // else if (side == "Left")
-      // {
-      //     Instantiate(bulletPrefab, bulletSpawnLeft.position,Quaternion.identity);
-      // }
+    {   
+         if (side == "Right")
+         {
+             var b = Instantiate(bulletPrefab, bulletSpawnRight.position ,Quaternion.identity);
+            BulletControl bScript = b.GetComponent<BulletControl>();
+            bScript.target = boss;
+            
+         }
+        
+         else if (side == "Left")
+         {
+            var b = Instantiate(bulletPrefab, bulletSpawnLeft.position, Quaternion.identity);
+            BulletControl bScript = b.GetComponent<BulletControl>();
+            bScript.target = boss;
+        }
 
         source.clip = shotClip;
         if (!source.isPlaying)
@@ -319,8 +399,10 @@ public class PlayerProt3Movement : MonoBehaviour
 
     private void OnGUI()
     {
-        GUILayout.Box(currentPlayerState.ToString());
-        GUILayout.Toggle(aerial,"Aerial: ");
-        GUILayout.Box("Current Velocity: " + rb.velocity.magnitude);
+      GUILayout.Box(currentPlayerState.ToString());
+      GUILayout.Toggle(aerial, "Aerial: ");
+      // GUILayout.Box("Current Velocity: " + rb.velocity.magnitude);
+       //GUILayout.Box("velo: " + VelocityRotation);
+      // GUILayout.Box("transformRot" + transform.rotation);
     }
 }
