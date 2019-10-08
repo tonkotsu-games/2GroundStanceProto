@@ -101,7 +101,6 @@ public class PlayerProt3Movement : MonoBehaviour
         CheckPhysics();
         CheckForGrinding();
         Vector2 direction = new Vector2(InputX, InputZ);
-       // SkaterMove(direction);
         if (Input.GetButtonDown("CameraButton"))
         {
 
@@ -117,7 +116,7 @@ public class PlayerProt3Movement : MonoBehaviour
 
         if (currentPlayerState == PlayerStates.driving)
         {
-            SkaterMove(direction);
+             SkaterMove(direction);
             if (Input.GetAxisRaw("TriggerRight") != 0)
             {
                 Skate("Right", direction);
@@ -192,16 +191,16 @@ public class PlayerProt3Movement : MonoBehaviour
         {
             anim.SetTrigger("skate" + direction);
 
-            Vector3 adapted_direction = CamToPlayer(moveDirection);
-            Vector3 planar_direction = transform.forward;
-            planar_direction.y = 0;
-            InputRotation = Quaternion.FromToRotation(planar_direction, adapted_direction);
-
-            if (rb.velocity.magnitude < maxSpeed)
-            {
-                Vector3 Direction = InputRotation * transform.forward * speedPerPush;
-                rb.AddForce(Direction);
-            }
+              Vector3 adapted_direction = CamToPlayer(moveDirection);
+              Vector3 planar_direction = transform.forward;
+              planar_direction.y = 0;
+              InputRotation = Quaternion.FromToRotation(planar_direction, adapted_direction);
+            
+              if (rb.velocity.magnitude < maxSpeed)
+              {
+                  Vector3 Direction = InputRotation * transform.forward * speedPerPush;
+                  rb.AddForce(Direction);
+              }
         }
 
     }
@@ -215,7 +214,7 @@ public class PlayerProt3Movement : MonoBehaviour
     {
         Ray ray = new Ray(transform.position, -transform.up);
         RaycastHit hit;
-
+        Debug.DrawRay(transform.position, -transform.up * 1.05f * height, Color.red,1f);
         if (Physics.Raycast(ray, out hit, 1.05f * height))
         {
             if (aerial)
@@ -246,77 +245,77 @@ public class PlayerProt3Movement : MonoBehaviour
 
     }
 
-    void SkaterMove(Vector2 inputs)
-    {
-
-        PhysicsRotation = aerial ? Quaternion.identity : GetPhysicsRotation(); // Rotation according to ground normal 
-        VelocityRotation = GetVelocityRot();
-        InputRotation = Quaternion.identity;
-        ComputedRotation = Quaternion.identity;
-
-
-        if (inputs.magnitude > 0.1f)
-        {
-            Vector3 adapted_direction = CamToPlayer(inputs);
-            Vector3 planar_direction = transform.forward;
-            planar_direction.y = 0;
-            InputRotation = Quaternion.FromToRotation(planar_direction, adapted_direction);
-
-            if (!aerial)
-            {
-                if (rb.velocity.magnitude < maxSpeed)
-                {
-                   Vector3 Direction = InputRotation * transform.forward * baseSpeed;
-                   rb.AddForce(Direction);
-                }
-            }
-        }
-
-
-
-        ComputedRotation =  PhysicsRotation * VelocityRotation * transform.rotation;
-        //ComputedRotation = VelocityRotation * transform.rotation;
-        //transform.rotation = Quaternion.Lerp(transform.rotation, ComputedRotation, rotationSpeed * Time.deltaTime);    
-    }
-
+     void SkaterMove(Vector2 inputs)
+     {
+    
+         PhysicsRotation = aerial ? Quaternion.identity : GetPhysicsRotation(); // Rotation according to ground normal 
+         VelocityRotation = GetVelocityRot();
+         InputRotation = Quaternion.identity;
+         ComputedRotation = Quaternion.identity;
+    
+    
+         if (inputs.magnitude > 0.1f)
+         {
+             Vector3 adapted_direction = CamToPlayer(inputs);
+             Vector3 planar_direction = transform.forward;
+             planar_direction.y = 0;
+             InputRotation = Quaternion.FromToRotation(planar_direction, adapted_direction);
+    
+             if (!aerial)
+             {
+                 if (rb.velocity.magnitude < maxSpeed)
+                 {
+                    Vector3 Direction = InputRotation * transform.forward * baseSpeed;
+                    rb.AddForce(Direction);
+                 }
+             }
+         }
+    
+         ComputedRotation =  PhysicsRotation * VelocityRotation * transform.rotation;
+         //ComputedRotation = VelocityRotation * transform.rotation;      
+          // transform.rotation = Quaternion.Lerp(transform.rotation, ComputedRotation, rotationSpeed);    
+         transform.rotation = Quaternion.identity;
+         
+     }
+    
     Vector3 CamToPlayer(Vector2 d)
-    {
-        Vector3 cam_to_player = transform.position - cam.transform.position;
-        cam_to_player.y = 0;
-
-        Vector3 cam_to_player_right = Quaternion.AngleAxis(90, Vector3.up) * cam_to_player;
-
-        Vector3 direction = cam_to_player * d.y + cam_to_player_right * d.x;
-        return direction.normalized;
-    }
-
-    Quaternion GetPhysicsRotation()
-    {
-        Vector3 target_vec = Vector3.up;
-        Ray ray = new Ray(transform.position, Vector3.down);
-        RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, 1.05f * height))
-        {
-            target_vec = hit.normal;
-        }
-
-        return Quaternion.FromToRotation(transform.up, target_vec);
-    }
-
-    Quaternion GetVelocityRot()
-    {
-        Vector3 vel = rb.velocity;
-        if (vel.magnitude > 0.2f)
-        {
-            vel.y = 0;
-            Vector3 dir = transform.forward;
-            dir.y = 0;
-            Quaternion vel_rot = Quaternion.FromToRotation(dir.normalized , vel.normalized);
-            return vel_rot;
-        }
-        else
-            return Quaternion.identity;
-    }
+     {
+         Vector3 cam_to_player = transform.position - cam.transform.position;
+         cam_to_player.y = 0;
+    
+         Vector3 cam_to_player_right = Quaternion.AngleAxis(90, Vector3.up) * cam_to_player;
+    
+         Vector3 direction = cam_to_player * d.y + cam_to_player_right * d.x;
+         return direction.normalized;
+     }
+  
+   Quaternion GetPhysicsRotation()
+   {
+       Vector3 target_vec = Vector3.up;
+       Ray ray = new Ray(transform.position, Vector3.down);
+       RaycastHit hit;
+       if (Physics.Raycast(ray, out hit, 1.05f * height))
+       {
+           target_vec = hit.normal;
+       }
+  
+       return Quaternion.FromToRotation(transform.up, target_vec);
+   }
+  
+   Quaternion GetVelocityRot()
+   {
+       Vector3 vel = rb.velocity;
+       if (vel.magnitude > 20f)
+       {
+           vel.y = 0;
+           Vector3 dir = transform.forward;
+           dir.y = 0;
+           Quaternion vel_rot = Quaternion.FromToRotation(dir.normalized, vel.normalized);
+           return vel_rot;
+       }
+       else
+           return Quaternion.identity;
+   }
 
     private void CheckForGrinding()
     {
@@ -401,8 +400,8 @@ public class PlayerProt3Movement : MonoBehaviour
     {
       GUILayout.Box(currentPlayerState.ToString());
       GUILayout.Toggle(aerial, "Aerial: ");
-      // GUILayout.Box("Current Velocity: " + rb.velocity.magnitude);
-       //GUILayout.Box("velo: " + VelocityRotation);
-      // GUILayout.Box("transformRot" + transform.rotation);
+       GUILayout.Box("Current PhysRot: " + PhysicsRotation);
+       GUILayout.Box("velo: " + VelocityRotation);
+       GUILayout.Box("rb.vel" + rb.velocity.magnitude);
     }
 }
