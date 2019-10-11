@@ -23,7 +23,7 @@ public class ProjectileController : MonoBehaviour
             transform.Translate(direction*speed*Time.deltaTime);
         }
 
-        if (Vector3.Distance(startPos, transform.position) > 20)
+        if (Vector3.Distance(startPos, transform.position) > 800)
         {
             Destroy(gameObject);
         }

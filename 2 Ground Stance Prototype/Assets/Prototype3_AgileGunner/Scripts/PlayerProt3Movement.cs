@@ -19,6 +19,9 @@ public class PlayerProt3Movement : MonoBehaviour
     private float rotationSpeed = 100f;
 
     [SerializeField]
+    private float grindSpeed = 2f;
+
+    [SerializeField]
     private float LandingAccelerationRatio = 0.5f;
 
     [SerializeField]
@@ -68,7 +71,8 @@ public class PlayerProt3Movement : MonoBehaviour
     GameObject grindedObject;
 
     Vector3 grindDirection;
-    float grindMagnitude;
+    public float grindMagnitude = 100f;
+    bool grindDirectionSet;
 
     public enum PlayerStates { driving, shooting , grinding}
     PlayerStates currentPlayerState = PlayerStates.driving;
@@ -116,10 +120,6 @@ public class PlayerProt3Movement : MonoBehaviour
 
         if (currentPlayerState == PlayerStates.driving)
         {
-            if (aerial)
-            {
-                StartCoroutine(AerialFix());
-            }
              SkaterMove(direction);
             if (Input.GetAxisRaw("TriggerRight") != 0)
             {
@@ -133,7 +133,17 @@ public class PlayerProt3Movement : MonoBehaviour
             else if (Input.GetButton("B"))
             {
                 rb.velocity = rb.velocity * breakForce;
+
             }
+
+            else if (Input.GetButton("Y"))
+            {
+                if (aerial)
+                {
+                    transform.Rotate(0, 90, 12);
+                }
+            }
+
 
             if (Input.GetButtonDown("A"))
             {
@@ -149,6 +159,8 @@ public class PlayerProt3Movement : MonoBehaviour
         else if(currentPlayerState == PlayerStates.grinding)
         {
             transform.LookAt(boss.transform);
+            //grindMagnitude = rb.velocity.magnitude;
+            //rb.AddForce(grindDirection.normalized * grindMagnitude * grindSpeed);
 
             if (Input.GetButtonDown("A"))
             {
@@ -166,11 +178,6 @@ public class PlayerProt3Movement : MonoBehaviour
             else if (Input.GetAxisRaw("TriggerLeft") != 0)
             {
                 Shoot("Left");
-            }
-
-            if(rb.velocity.magnitude < 0.1f)
-            {
-                rb.AddForce(Vector3.forward);
             }
 
 
@@ -217,10 +224,11 @@ public class PlayerProt3Movement : MonoBehaviour
 
     void CheckPhysics()
     {
-        Ray ray = new Ray(transform.position, -transform.up);
-        RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, 1.05f * height))
-        {
+        // Ray ray = new Ray(transform.position, -transform.up);
+        // RaycastHit hit;
+        // if (Physics.Raycast(ray, out hit, 1.05f * height))
+        // {
+        if (GroundCheck.isGrounded) { 
             if (aerial)
             {
                 VelocityOnLanding();
@@ -323,30 +331,27 @@ public class PlayerProt3Movement : MonoBehaviour
 
     private void CheckForGrinding()
     {
-        Ray ray = new Ray(transform.position, -transform.up);
-        RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, 1f, 1 << 10))
-        {
-            ChangePlayerState(PlayerStates.grinding);
-            grindedObject = hit.collider.gameObject;
-            grindDirection = Quaternion.AngleAxis(90, Vector3.right) * hit.normal;
-        }
-
-        else
-        {
-            if (currentPlayerState == PlayerStates.grinding)
-            {
-                ChangePlayerState(PlayerStates.driving);
-            }
-        }
-    }
-    IEnumerator AerialFix()
-    {
-        yield return new WaitForSeconds(5);
-        if (aerial)
-        {
-            transform.Translate(1, 0, 1);
-        }
+      // Ray ray = new Ray(transform.position, -transform.up);
+      // RaycastHit hit;
+      // if (Physics.Raycast(ray, out hit, 1f, 1 << 10))
+      // {
+      //     ChangePlayerState(PlayerStates.grinding);
+      //     grindedObject = hit.collider.gameObject;
+      //     if (!grindDirectionSet)
+      //     {
+      //         grindDirection = Quaternion.AngleAxis(90, Vector3.right) * hit.normal;
+      //         grindDirectionSet = true;
+      //     }
+      // }
+      //
+      // else
+      // {
+      //     if (currentPlayerState == PlayerStates.grinding)
+      //     {
+      //         ChangePlayerState(PlayerStates.driving);
+      //         grindDirectionSet = false;
+      //     }
+      // }
     }
 
 
@@ -370,9 +375,7 @@ public class PlayerProt3Movement : MonoBehaviour
                 transform.LookAt(boss.transform);
             }
             else if(requestedState == PlayerStates.grinding)
-            {
-                grindMagnitude = rb.velocity.magnitude;
-                rb.AddForce(grindDirection.normalized * grindMagnitude);
+            { 
 
                 Time.timeScale = 0.5f;
                 anim.SetInteger("state", 2);
