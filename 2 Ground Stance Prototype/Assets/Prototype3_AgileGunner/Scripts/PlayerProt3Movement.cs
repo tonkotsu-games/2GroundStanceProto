@@ -116,6 +116,10 @@ public class PlayerProt3Movement : MonoBehaviour
 
         if (currentPlayerState == PlayerStates.driving)
         {
+            if (aerial)
+            {
+                StartCoroutine(AerialFix());
+            }
              SkaterMove(direction);
             if (Input.GetAxisRaw("TriggerRight") != 0)
             {
@@ -150,7 +154,8 @@ public class PlayerProt3Movement : MonoBehaviour
             {
                 if (!aerial)
                 {
-                    rb.AddForce(Vector3.up * jumpForce);
+                    Vector3 jumpvector = new Vector3(direction.x, 0, direction.y);
+                    rb.AddForce(direction * jumpForce);
                 }
             }
 
@@ -214,7 +219,6 @@ public class PlayerProt3Movement : MonoBehaviour
     {
         Ray ray = new Ray(transform.position, -transform.up);
         RaycastHit hit;
-        Debug.DrawRay(transform.position, -transform.up * 1.05f * height, Color.red,1f);
         if (Physics.Raycast(ray, out hit, 1.05f * height))
         {
             if (aerial)
@@ -273,8 +277,8 @@ public class PlayerProt3Movement : MonoBehaviour
     
          ComputedRotation =  PhysicsRotation * VelocityRotation * transform.rotation;
          //ComputedRotation = VelocityRotation * transform.rotation;      
-          // transform.rotation = Quaternion.Lerp(transform.rotation, ComputedRotation, rotationSpeed);    
-         transform.rotation = Quaternion.identity;
+         transform.rotation = Quaternion.Lerp(transform.rotation, ComputedRotation, rotationSpeed);    
+         // transform.rotation = Quaternion.identity;
          
      }
     
@@ -336,6 +340,15 @@ public class PlayerProt3Movement : MonoBehaviour
             }
         }
     }
+    IEnumerator AerialFix()
+    {
+        yield return new WaitForSeconds(5);
+        if (aerial)
+        {
+            transform.Translate(1, 0, 1);
+        }
+    }
+
 
     public void ChangePlayerState(PlayerStates requestedState)
     {
@@ -361,7 +374,7 @@ public class PlayerProt3Movement : MonoBehaviour
                 grindMagnitude = rb.velocity.magnitude;
                 rb.AddForce(grindDirection.normalized * grindMagnitude);
 
-                Time.timeScale = 0.3f;
+                Time.timeScale = 0.5f;
                 anim.SetInteger("state", 2);
                 transform.LookAt(boss.transform);
             }
