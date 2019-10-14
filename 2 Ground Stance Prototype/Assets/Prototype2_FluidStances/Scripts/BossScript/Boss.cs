@@ -10,6 +10,10 @@ public class Boss : MonoBehaviour
     private float aggroRange = 1;
     [SerializeField] [Tooltip("The layer assigned to the player")]
     private int layerMaskPlayer = 9;
+    [SerializeField]
+    private GameObject projectilePrefab;
+    [SerializeField]
+    private Transform projectileSpawner;
     private GameObject player;
     private Animator bossAnim;
     private Vector3 desiredLookDirection;
@@ -58,7 +62,14 @@ public class Boss : MonoBehaviour
             if (Physics.CheckSphere(transform.position - new Vector3(0, 1.5f, 0), aggroRange, layerMaskPlayer))
             {
                 bossAnim.SetTrigger("attacking");
-                StartCoroutine(AnimationLockTimer());
+                StartCoroutine(AnimationLockTimer(0));
+            }
+
+            else
+            {
+                bossAnim.SetTrigger("RangedWindup");
+                Debug.Log("ranged attack");
+                StartCoroutine(AnimationLockTimer(3));
             }
         }
     }
@@ -81,10 +92,11 @@ public class Boss : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position - new Vector3(0,1.5f,0), aggroRange);
     }
 
-    IEnumerator AnimationLockTimer()
+    IEnumerator AnimationLockTimer(float bonusDelay)
     {
         attacking = true;
         yield return new WaitForSeconds(bossAnim.GetCurrentAnimatorStateInfo(0).length + 1);
+        yield return new WaitForSeconds(bonusDelay);
         attacking = false;
     }
 
@@ -101,6 +113,15 @@ public class Boss : MonoBehaviour
         {
             collider.enabled = false;
         }
+    }
+
+    public void SpawnProjectile()
+    {
+        var p = Instantiate(projectilePrefab, projectileSpawner.position, Quaternion.identity);
+        ProjectileController pScript = p.GetComponent<ProjectileController>();
+        pScript.direction = player.transform.position - transform.position;
+        pScript.shoot = true;
+
     }
 
 }
