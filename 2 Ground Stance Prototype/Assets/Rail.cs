@@ -23,7 +23,7 @@ public class Rail : MonoBehaviour
         if (grinding)
         {
             Debug.Log(playerScript.grindMagnitude);
-            player.GetComponent<Rigidbody>().AddForce(direction.normalized*playerScript.grindMagnitude);
+            player.GetComponent<Rigidbody>().AddForce(direction.normalized*playerScript.grindSpeed);
         }
     }
 

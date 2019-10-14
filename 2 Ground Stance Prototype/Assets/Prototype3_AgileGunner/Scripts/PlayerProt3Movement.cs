@@ -19,7 +19,7 @@ public class PlayerProt3Movement : MonoBehaviour
     private float rotationSpeed = 100f;
 
     [SerializeField]
-    private float grindSpeed = 2f;
+    public float grindSpeed = 2f;
 
     [SerializeField]
     private float LandingAccelerationRatio = 0.5f;
@@ -414,10 +414,10 @@ public class PlayerProt3Movement : MonoBehaviour
 
     private void OnGUI()
     {
-      GUILayout.Box(currentPlayerState.ToString());
-      GUILayout.Toggle(aerial, "Aerial: ");
-       GUILayout.Box("Current PhysRot: " + PhysicsRotation);
-       GUILayout.Box("velo: " + VelocityRotation);
-       GUILayout.Box("rb.vel" + rb.velocity.magnitude);
+      //GUILayout.Box(currentPlayerState.ToString());
+      //GUILayout.Toggle(aerial, "Aerial: ");
+      // GUILayout.Box("Current PhysRot: " + PhysicsRotation);
+      // GUILayout.Box("velo: " + VelocityRotation);
+      // GUILayout.Box("rb.vel" + rb.velocity.magnitude);
     }
 }
